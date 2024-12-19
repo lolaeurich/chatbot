@@ -1,0 +1,1810 @@
+<?php
+/**
+ * The template for displaying the footer.
+ *
+ * Contains the body & html closing tags.
+ *
+ * @package HelloElementor
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; // Exit if accessed directly.
+}
+
+if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_location( 'footer' ) ) {
+	if ( hello_elementor_display_header_footer() ) {
+		if ( did_action( 'elementor/loaded' ) && hello_header_footer_experiment_active() ) {
+			get_template_part( 'template-parts/dynamic-footer' );
+		} else {
+			get_template_part( 'template-parts/footer' );
+		}
+	}
+}
+?>
+
+<!-- WhatsApp Button -->
+<div id="whatsapp-button">
+    <a href="#" id="whatsapp-link">
+        <img src="https://img.icons8.com/?size=100&id=ZeQPTbzIF4jw&format=png&color=F63584" alt="WhatsApp" />
+    </a>
+</div>
+
+<!-- Chat Box -->
+<div id="chat-box" style="display: none;">
+    <div id="chat-header">Fale com a PrevX Assessoria</div>
+    <div id="chat-messages">
+        <div class="message agent">
+            <span class="text">Seja bem-vinda à PrevX Assessoria! 🌸 Com mais de 60 mil mães atendidas e 15 anos no mercado, temos orgulho de nossos 98,7% de sucesso na liberação do auxílio-maternidade.</span>
+            <img src="https://img.icons8.com/?size=100&id=46419&format=png&color=000000" alt="Avatar" class="avatar" />
+        </div>
+    </div>
+    <div id="chat-input">
+        <input type="text" id="message-input" placeholder="Digite uma mensagem..." />
+        <button id="send-button">Enviar</button>
+    </div>
+</div>
+
+<!-- CSS -->
+<style>
+#whatsapp-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#whatsapp-button img {
+    width: 60px; /* Ajuste o tamanho conforme necessário */
+    height: 60px; /* Ajuste o tamanho conforme necessário */
+	 transform: scaleX(-1); /* Espelha a imagem horizontalmente */
+}
+
+#chat-box {
+    position: fixed;
+    bottom: 90px; /* Ajuste para cima do botão */
+    right: 20px;
+    width: 310px; /* Largura da caixa de chat */
+    height: 495px; /* Altura da caixa de chat */
+    background: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png') no-repeat center center;
+    background-size: cover;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 999;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column; /* Para empilhar os elementos verticalmente */
+}
+
+#chat-header {
+    background: #FEB5D3; /* Cor do cabeçalho do WhatsApp */
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+}
+
+#chat-messages {
+    padding: 10px;
+    height: 400px; /* Ajuste a altura para deixar espaço para as mensagens */
+    overflow-y: auto; /* Rolagem vertical */
+}
+
+.message {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+	margin-top: 10px;
+}
+
+.message.user {
+    justify-content: flex-start; /* Alinha as mensagens do usuário à esquerda */
+}
+
+.message.agent {
+    justify-content: flex-end; /* Alinha as mensagens do agente à direita */
+}
+
+.avatar {
+    width: 40px; /* Tamanho do avatar */
+    height: 40px; /* Tamanho do avatar */
+    margin-left: 10px; /* Margem à esquerda do avatar */
+}
+
+.text {
+    background: #fff; /* Fundo da mensagem */
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    max-width: 220px; /* Largura máxima da mensagem */
+}
+
+.typing-indicator {
+    font-style: italic;
+    color: #888;
+}
+
+#chat-input {
+    display: flex;
+    border-top: 1px solid #ccc;
+    padding-inline: 5%;
+}
+
+#chat-input input {
+    flex: 1; /* Ocupa o espaço restante */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px; /* Margem à direita do input */
+}
+
+#chat-input button {
+    background: #FEB5D3; /* Cor do botão */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#chat-input button:hover {
+    background: #128C7E; /* Cor do botão ao passar o mouse */
+}
+	
+	#whatsapp-button {
+    z-index: 9999;
+}
+
+#buttons-container {
+    display: flex;
+	flex-direction: column;
+    justify-content: space-around;
+    margin-top: 10px;
+	row-gap: 5px;
+}
+	
+	#buttons-container button {
+		    margin-bottom: 5px;
+	}
+</style>
+
+<!-- JavaScript -->
+<script>
+var messages = []; // Array para armazenar as mensagens da conversa
+var userData = {
+    nome: null,
+    telefone: null,
+    solicitacao: null,
+    gravida: null,
+    meses_gravidez: null,
+    contrato_trab: null,
+    filho_menor: false,
+    desempregada: false,
+    trab_anterior: false
+}; // Objeto para armazenar os dados do usuário
+
+document.getElementById('whatsapp-link').onclick = function(event) {
+    event.preventDefault();
+    openChat();
+};
+
+// Seleciona todos os botões do Elementor
+var buttons = document.querySelectorAll('.elementor-button');
+buttons.forEach(function(button) {
+    button.onclick = function(event) {
+        event.preventDefault();
+        openChat();
+    };
+});
+
+function openChat() {
+    var chatBox = document.getElementById('chat-box');
+    if (chatBox.style.display === "none") {
+        chatBox.style.display = "block";
+
+        // Mensagem de "digitando" aparece
+        var typingIndicator = document.createElement('div');
+        typingIndicator.classList.add('typing-indicator');
+        typingIndicator.innerText = "Consultor digitando...";
+        document.getElementById('chat-messages').appendChild(typingIndicator);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+
+        // Mensagem inicial do consultor
+        setTimeout(function() {
+            document.getElementById('chat-messages').removeChild(typingIndicator);
+            showAgentMessage("Estamos prestes a te transferir para um de nossos especialistas, que verificará seu direito e explicará os documentos necessários para liberar os valores para sua conta bancária.");
+            
+            // Mensagens intermediárias
+            setTimeout(function() {
+                showAgentMessage("Mas faremos algumas perguntas antes, para saber se você atende os pré-requisitos para receber o benefício.");
+
+                setTimeout(function() {
+                    showAgentMessage("Vamos começar com a primeira:");
+                    
+                    // Chama a próxima pergunta
+                    setTimeout(() => askName(), 6000);
+                }, 6000); // Tempo entre mensagens
+            }, 6000); // Tempo entre mensagens
+        }, 6000); // Tempo para digitar
+    } else {
+        chatBox.style.display = "none";
+    }
+}
+
+
+
+function addWhatsAppButton() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center'; // Centraliza o botão
+
+    var button = document.createElement('a');
+    button.innerText = 'Indique uma mãe';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1%252C%20acessei%20o%20site%20e%20infelizmente%20n%C3%A3o%20sou%20qualificada%20para%20receber%20o%20aux%C3%ADlio%252C%20mas%20gostaria%20de%20saber%20como%20posso%20indicar%20a%20Materna%20Prev%20para%20outras%20m%C3%A3es.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block'; // Para que o estilo funcione
+    button.style.padding = '10px 20px'; // Espaçamento interno
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+	
+	function addBtnContinuar() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center'; // Centraliza o botão
+
+    var button = document.createElement('a');
+    button.innerText = 'Fale com um atendente';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1%2C%20acesse%20o%20site.%20J%C3%A1%20fiz%20minha%20an%C3%A1lise%20com%20a%20Materna%20Prev%20anteriormente.%20Gostaria%20de%20continuar%20meu%20atendimento.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block'; // Para que o estilo funcione
+    button.style.padding = '10px 20px'; // Espaçamento interno
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+	
+	function addIndicacao() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center'; // Centraliza o botão
+
+    var button = document.createElement('a');
+    button.innerText = 'Saiba como indicar uma mãe';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1%252C%20acessei%20o%20site%20e%20infelizmente%20n%C3%A3o%20sou%20qualificada%20para%20receber%20o%20aux%C3%ADlio%252C%20mas%20gostaria%20de%20saber%20como%20posso%20indicar%20a%20Materna%20Prev%20para%20outras%20m%C3%A3es.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block'; // Para que o estilo funcione
+    button.style.padding = '10px 20px'; // Espaçamento interno
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+	function addDesempregada() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center'; // Centraliza o botão
+
+    var button = document.createElement('a');
+    button.innerText = 'Fale com um especialista';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1%2C%20%20acessei%20o%20site.%20Sou%20m%C3%A3e%20e%20estava%20desempregada%20no%20momento%20do%20nascimento%20da%20crian%C3%A7a.%20J%C3%A1%20trabalhei%20com%20registro%20em%20carteira%20antes%20do%20nascimento%20do%20beb%C3%AA.%20Gostaria%20de%20solicitar%20a%20ajuda%20de%20um%20especialista%20no%20requerimento%20do%20aux%C3%ADlio%20maternidade.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block'; // Para que o estilo funcione
+    button.style.padding = '10px 20px'; // Espaçamento interno
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+		function addSouGestante() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center'; // Centraliza o botão
+
+    var button = document.createElement('a');
+    button.innerText = 'Fale com um especialista';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1%2C%20acessei%20o%20site.%20Sou%20gestante%20e%20n%C3%A3o%20tenho%20registro%20em%20carteira.%20Gostaria%20de%20falar%20com%20um%20atendente%20para%20saber%20como%20posso%20solicitar%20o%20aux%C3%ADlio%20maternidade.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block'; // Para que o estilo funcione
+    button.style.padding = '10px 20px'; // Espaçamento interno
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+// Função para mostrar mensagens do agente
+function showAgentMessage(text) {
+    var agentMessageContainer = document.createElement('div');
+    agentMessageContainer.classList.add('message', 'agent');
+
+    var agentTextSpan = document.createElement('span');
+    agentTextSpan.classList.add('text');
+    agentTextSpan.innerText = text;
+
+    var agentAvatar = document.createElement('img');
+    agentAvatar.src = "https://img.icons8.com/?size=100&id=46419&format=png&color=000000";
+    agentAvatar.classList.add('avatar');
+
+    agentMessageContainer.appendChild(agentTextSpan);
+    agentMessageContainer.appendChild(agentAvatar);
+    document.getElementById('chat-messages').appendChild(agentMessageContainer);
+    
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para perguntar o nome do usuário
+function askName() {
+    showAgentMessage("Primeiro, nos informe seu nome.");
+}
+
+// Função para enviar a mensagem do usuário
+document.getElementById('send-button').onclick = function() {
+    var input = document.getElementById('message-input');
+    var messageText = input.value;
+    if (messageText.trim() !== '') {
+        addUserMessage(messageText);
+        input.value = '';
+    }
+}
+
+// Função para adicionar a mensagem do usuário
+function addUserMessage(messageText) {
+    var messageContainer = document.createElement('div');
+    messageContainer.classList.add('user', 'message');
+	
+	 var avatar = document.createElement('img');
+    avatar.src = "https://img.icons8.com/?size=100&id=SJ8MjTSUbDMh&format=png&color=000000";
+    avatar.classList.add('avatar');
+    
+    var textSpan = document.createElement('span');
+    textSpan.classList.add('text');
+    textSpan.innerText = messageText;
+
+	 messageContainer.appendChild(avatar);
+    messageContainer.appendChild(textSpan);
+    document.getElementById('chat-messages').appendChild(messageContainer);
+
+    messages.push({ user: 'user', text: messageText });
+
+    processUserResponse(messageText);
+}
+
+// Função para processar a resposta do usuário
+function processUserResponse(messageText, idleadcontato) {
+    if (!userData.nome) {
+        userData.nome = messageText;
+        userData.idleadcontato = idleadcontato; // Armazenando o ID do lead
+        showAgentMessage(`Ok ${userData.nome}, pode me passar o número do seu WhatsApp? Com o DDD junto, por favor! (ex: 41 999999999).`);
+    } else if (!userData.telefone) {
+        userData.telefone = messageText;
+        console.log("Dados armazenados:", userData);
+    showAgentMessage(`${userData.nome}, você está grávida atualmente?`);
+        askSolicitacao();
+    }
+}
+
+
+// Função para perguntar sobre a solicitação anterior
+function askSolicitacao() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function() {
+        userData.solicitacao = true;
+        handleGravidezResponse(true);
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function() {
+        userData.solicitacao = false;
+        handleSolicitacaoResponse(false);
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+// Função para lidar com a resposta sobre filhos menores
+function handleFilhoMenorResponse(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        // Se a resposta for "Sim", pergunta sobre o benefício
+        showAgentMessage("Já chegou a receber o benefício pelo nascimento do seu filho?");
+        askBeneficioRecebido(); // Pergunta sobre o benefício
+    } else {
+        // Se a resposta for "Não", pergunta sobre o mês e ano do nascimento
+        showAgentMessage(`${userData.nome}, qual o mês e ano do nascimento do seu primogênito? (exemplo: 01/2020)`);
+        askNascimentoPrimogenito(); // Pergunta sobre nascimento
+    }
+}
+  
+  // Função para perguntar se a data informada está correta
+function confirmDataNascimento() {
+    showAgentMessage("A data acima está correta, mamãe?");
+    
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        handleConfirmacaoData(true);
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a confirmação da data de nascimento
+function handleConfirmacaoData(response) {
+    if (response) {
+        showAgentMessage("Quando o seu pequeno nasceu, você trabalhava de carteira assinada?");
+        askCarteiraAssinada(); // Pergunta sobre carteira assinada
+    }
+}
+
+// Função para perguntar se trabalhava de carteira assinada
+function askCarteiraAssinada() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        userData.carteira_assinada = true; // Define como verdadeiro
+        handleCarteiraAssinadaResponse(true); // Processa a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        userData.carteira_assinada = false; // Define como falso
+        handleCarteiraAssinadaResponse(false); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+function handleCarteiraAntesResponse(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage(`Ok ${userData.nome}, agora resta poucos detalhes para finalizar a sua consulta!`);
+
+        // Pergunta sobre seguro-desemprego
+        setTimeout(() => {
+            showAgentMessage("Quando você saiu do seu último emprego, chegou a receber o seguro desemprego?");
+            askSeguroDesemprego(); // Função para criar botões de resposta
+        }, 2000);
+    } else {
+        showAgentMessage("Certo, mamãe. Vamos continuar analisando a sua situação.");
+    }
+}
+
+
+ function askSeguroDesemprego() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        handleSeguroDesempregoResponse(true);
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        handleSeguroDesempregoResponse(false);
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+function handleSeguroDesempregoResponse(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage("Mamãe, você tem carteira de trabalho digital ou física, acesso ao aplicativo do INSS e sua rescisão contratual em mãos?");
+        askDocumentosDisponiveis(); // Chama a função de documentos
+    } else {
+        showAgentMessage("Certo, mamãe. Vamos continuar analisando a sua situação.");
+    }
+}
+
+  
+ function askDocumentos() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        clearPreviousButtons(); // Limpa os botões anteriores
+        showAgentMessage(`${userData.nome}, qual seria o mês e o ano que você saiu do seu último trabalho ANTES do seu pequeno nascer? (exemplo: 06/2022)`);
+        setTimeout(() => askMesAnoUltimoEmprego(), 1000); // Aguarda para chamar a próxima função
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        clearPreviousButtons(); // Limpa os botões anteriores
+        showAgentMessage("Sem problemas, mamãe. Você pode organizar os documentos e voltar para concluir.");
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+  
+  function askMesAnoUltimoEmprego() {
+    document.getElementById('send-button').onclick = function () {
+        var input = document.getElementById('message-input');
+        var messageText = input.value.trim();
+
+        if (messageText.match(/^\d{2}\/\d{4}$/)) { // Valida o formato MM/AAAA
+            userData.ultimoEmprego = messageText;
+            addUserMessage(messageText); // Adiciona a mensagem do usuário ao chat
+            input.value = ''; // Limpa o campo de entrada
+
+            showAgentMessage("Compreendo.");
+            setTimeout(() => {
+                showAgentMessage("Você foi demitida ou pediu as contas?");
+                askMotivoSaida(); // Chama a próxima pergunta
+            }, 1000);
+        } else {
+            showAgentMessage("Por favor, insira uma data válida no formato MM/AAAA.");
+        }
+    };
+}
+
+
+  function clearPreviousButtons() {
+    var buttonsContainer = document.getElementById('buttons-container');
+    if (buttonsContainer) {
+        buttonsContainer.remove(); // Remove o container de botões
+    }
+}
+
+
+  
+  function askMotivoSaida() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnDemitida = document.createElement('button');
+    btnDemitida.innerText = 'FUI DEMITIDA';
+    btnDemitida.onclick = function () {
+        handleMotivoSaidaResponse('demitida');
+    };
+
+    var btnPediConta = document.createElement('button');
+    btnPediConta.innerText = 'PEDI AS CONTAS';
+    btnPediConta.onclick = function () {
+        handleMotivoSaidaResponse('pedi_as_contas');
+    };
+
+    buttonsContainer.appendChild(btnDemitida);
+    buttonsContainer.appendChild(btnPediConta);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+  
+  function handleMotivoSaidaResponse(motivo) {
+    showAgentMessage(`Você respondeu: ${motivo === 'demitida' ? "FUI DEMITIDA" : "PEDI AS CONTAS"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (motivo === 'demitida') {
+        showAgentMessage("Você entrou ou entrará com um processo trabalhista contra a empresa por ter saído gestante?");
+        askProcessoTrabalhista(); // Pergunta sobre o processo trabalhista
+    } else {
+        showAgentMessage("Certo, mamãe. Vamos continuar com sua análise.");
+    }
+}
+
+  
+  function askProcessoTrabalhista() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        showAgentMessage("Certo, mamãe. Obrigado por compartilhar as informações.");
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        showAgentMessage("Certo, mamãe. Obrigado por compartilhar as informações.");
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+  
+  
+  
+  // Função para perguntar se trabalhava de carteira assinada
+function askCarteiraAssinada() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        userData.carteira_assinada = true; // Define como verdadeiro
+        handleCarteiraAssinadaResponse(true); // Processa a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        userData.carteira_assinada = false; // Define como falso
+        handleCarteiraAssinadaResponse(false); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre carteira assinada
+function handleCarteiraAssinadaResponse(response) {
+    clearPreviousButtons(); // Remove os botões anteriores
+    if (response) {
+        // Se a resposta for "Sim"
+        showAgentMessage(`Ok ${userData.nome}, agora resta poucos detalhes para finalizar a sua consulta!`);
+    } else {
+        // Se a resposta for "Não"
+        showAgentMessage("Mamãe, você chegou a ter carteira registrada ANTES do nascimento do seu filho?");
+        askCarteiraAntes(); // Pergunta sobre carteira assinada antes do nascimento
+    }
+}
+
+// Função para perguntar sobre carteira assinada antes do nascimento
+function askCarteiraAntes() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        userData.carteira_antes = true; // Define como verdadeiro
+        handleCarteiraAntesResponse(true); // Processa a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        userData.carteira_antes = false; // Define como falso
+        handleCarteiraAntesResponse(false); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre carteira registrada antes do nascimento
+function handleCarteiraAntesResponse(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage(`Ok ${userData.nome}, agora resta poucos detalhes para finalizar a sua consulta!`);
+
+        setTimeout(function () {
+            showAgentMessage("Quando você saiu do seu último emprego, chegou a receber o seguro desemprego?");
+            askSeguroDesemprego(); // Pergunta sobre seguro-desemprego
+        }, 2000);
+    } else {
+        showAgentMessage("Certo, mamãe. Vamos continuar analisando a sua situação.");
+    }
+}
+
+// Função para remover botões anteriores
+function clearPreviousButtons() {
+    var buttonsContainer = document.getElementById('buttons-container');
+    if (buttonsContainer) {
+        buttonsContainer.remove(); // Remove o container dos botões
+    }
+}
+  
+  // Função para perguntar sobre o seguro-desemprego
+function askSeguroDesemprego() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        userData.seguro_desemprego = true; // Define como verdadeiro
+        handleSeguroDesempregoResponse(true); // Processa a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        userData.seguro_desemprego = false; // Define como falso
+        handleSeguroDesempregoResponse(false); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre o seguro-desemprego
+function handleSeguroDesempregoResponse(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage(
+            "Mamãe, você tem carteira de trabalho digital ou física, acesso ao aplicativo do INSS e sua rescisão contratual em mãos?"
+        );
+        askDocumentosDisponiveis(); // Pergunta sobre os documentos
+    } else {
+        showAgentMessage("Certo, mamãe. Vamos continuar analisando a sua situação.");
+    }
+}
+
+function askDocumentosDisponiveis() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        clearPreviousButtons(); // Limpa os botões anteriores
+        showAgentMessage(`${userData.nome}, qual seria o mês e o ano que você saiu do seu último trabalho ANTES do seu pequeno nascer? (exemplo: 06/2022)`);
+
+        // Aguarda um tempo e chama a próxima função
+        setTimeout(() => askMesAnoUltimoEmprego(), 1000); 
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        clearPreviousButtons(); // Limpa os botões anteriores
+        showAgentMessage("Sem problemas, mamãe. Você pode organizar os documentos e voltar para concluir.");
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+
+  
+// Função para perguntar sobre carteira assinada antes do nascimento
+function askCarteiraAntes() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        userData.carteira_antes = true; // Define como verdadeiro
+        handleCarteiraAntesResponse(true); // Processa a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        userData.carteira_antes = false; // Define como falso
+        handleCarteiraAntesResponse(false); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+// Função para remover botões anteriores
+function clearPreviousButtons() {
+    var buttonsContainer = document.getElementById('buttons-container');
+    if (buttonsContainer) {
+        buttonsContainer.remove(); // Remove o container dos botões
+    }
+}
+
+
+// Função para perguntar sobre o benefício recebido
+function askBeneficioRecebido() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        userData.beneficio_recebido = true; // Define como verdadeiro
+        handleBeneficioResponse(true); // Processa a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        userData.beneficio_recebido = false; // Define como falso
+        handleBeneficioResponse(false); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+// Função para perguntar sobre o nascimento do primogênito
+function askNascimentoPrimogenito() {
+    document.getElementById('send-button').onclick = function () {
+        var input = document.getElementById('message-input');
+        var messageText = input.value.trim(); // Obtém a resposta do usuário
+
+        if (messageText.match(/^\d{2}\/\d{4}$/)) { // Valida o formato MM/AAAA
+            userData.nascimento_primogenito = messageText;
+            addUserMessage(messageText); // Adiciona a mensagem no chat
+            input.value = ''; // Limpa o campo de entrada
+
+            showAgentMessage("Certo, vamos continuar com as próximas perguntas.");
+            askNextQuestion(); // Próxima pergunta (substitua por sua lógica)
+        } else {
+            showAgentMessage("Por favor, insira uma data válida no formato MM/AAAA.");
+        }
+    };
+}
+  
+  // Função para lidar com a resposta sobre o benefício recebido
+function handleBeneficioResponse(response) {
+    if (response) {
+        // Se a resposta for "Sim", o chatbot pode avançar para outra lógica (ajustar conforme necessário)
+        showAgentMessage("Certo, vamos continuar analisando sua situação.");
+    } else {
+        // Se a resposta for "Não", pergunta sobre o nascimento do primogênito
+        showAgentMessage(`${userData.nome}, qual o mês e ano do nascimento do seu primogênito? (exemplo: 10/2020)`);
+        askNascimentoPrimogenito(); // Chama a função para processar a data
+    }
+}
+
+// Função para perguntar sobre o nascimento do primogênito
+function askNascimentoPrimogenito() {
+    document.getElementById('send-button').onclick = function () {
+        var input = document.getElementById('message-input');
+        var messageText = input.value.trim(); // Obtém a resposta do usuário
+
+        if (messageText.match(/^\d{2}\/\d{4}$/)) { // Valida o formato MM/AAAA
+            userData.nascimento_primogenito = messageText;
+            addUserMessage(messageText); // Adiciona a mensagem no chat
+            input.value = ''; // Limpa o campo de entrada
+
+            // Pergunta se a data está correta
+            confirmDataNascimento();
+        } else {
+            showAgentMessage("Por favor, insira uma data válida no formato MM/AAAA.");
+        }
+    };
+}
+
+// Função para perguntar se a data informada está correta
+function confirmDataNascimento() {
+    showAgentMessage("A data acima está correta, mamãe?");
+    
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        handleConfirmacaoData(true); // Confirmação da data
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+
+// Função para perguntar sobre gravidez
+function askGravida() {
+    clearPreviousButtons(); // Remove botões anteriores, se necessário
+
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function() {
+        userData.gravida = true;
+        handleGravidezResponse(true); // Chama a função correta para lidar com a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function() {
+        userData.gravida = false;
+        handleGravidezResponse(false); // Chama a função correta para lidar com a resposta
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre gravidez
+function handleGravidezResponse(response) {
+    clearPreviousButtons(); // Remove botões anteriores, se necessário
+
+    if (response) {
+        // Caso a resposta seja "Sim"
+        showAgentMessage("Que maravilha! Que ele(a) nasça com muita saúde 🥰...");
+
+        setTimeout(() => {
+            showAgentMessage("Você se encontra com quantos meses de gestação?");
+            askMesesGestacao(); // Chama a próxima etapa
+        }, 1000);
+    } else {
+        // Caso a resposta seja "Não"
+        showAgentMessage("Você tem algum filho menor de 5 anos?");
+        askFilhoMenor(); // Chama a próxima pergunta
+    }
+}
+
+
+
+
+// Função para perguntar sobre os meses de gestação
+function askMesesGestacao() {
+    clearPreviousButtons(); // Remove botões anteriores
+
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    buttonsContainer.style.display = 'grid';
+    buttonsContainer.style.gridTemplateColumns = '1fr 1fr'; // Duas colunas
+    buttonsContainer.style.gap = '10px'; // Espaçamento entre os botões
+
+    for (let i = 1; i <= 9; i++) {
+        const button = document.createElement('button');
+        button.innerText = `${i} ${i > 1 ? 'meses' : 'mês'}`;
+        button.onclick = function () {
+            userData.meses_gravidez = i; // Armazena o número de meses
+            handleMesesGestacaoResponse(i); // Processa a resposta
+        };
+        buttonsContainer.appendChild(button);
+    }
+
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre os meses de gestação
+function handleMesesGestacaoResponse(meses) {
+    showAgentMessage(`Você respondeu: ${meses} ${meses > 1 ? 'meses' : 'mês'}.`);
+    console.log("Dados armazenados:", userData);
+
+    // Adicione aqui o próximo fluxo baseado na resposta
+    setTimeout(() => {
+        showAgentMessage("Atualmente, você está empregada ou está desempregada?");
+        askEmpregoStatus();
+        // Continue o fluxo conforme necessário
+    }, 1000);
+} 
+  
+  function askDataSaidaEmprego() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnAntes = document.createElement('button');
+    btnAntes.innerText = 'Antes';
+    btnAntes.onclick = function() {
+        handleDataSaidaResponse('antes'); // Processa a resposta para "Antes"
+    };
+
+    var btnDepois = document.createElement('button');
+    btnDepois.innerText = 'Depois';
+    btnDepois.onclick = function() {
+        handleDataSaidaResponse('depois'); // Processa a resposta para "Depois"
+    };
+
+    buttonsContainer.appendChild(btnAntes);
+    buttonsContainer.appendChild(btnDepois);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+function handleDataSaidaResponse(response) {
+    clearPreviousButtons(); // Remove os botões anteriores
+
+    if (response === 'antes') {
+        showAgentMessage("A data de saída de seu último registro foi antes ou depois de setembro de 2022?");
+        // Implementar a lógica para essa pergunta, se necessário
+    } else if (response === 'depois') {
+        showAgentMessage("Ótimo, estamos quase lá!");
+        setTimeout(() => {
+            showAgentMessage("Quando saiu do seu último emprego, chegou a receber as parcelas do seguro desemprego?");
+            askSeguroDesemprego(); // Função para lidar com a pergunta sobre seguro desemprego
+        }, 1000);
+    } 
+}
+
+// Função para perguntar sobre o seguro-desemprego
+function askSeguroDesemprego() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        handleSeguroDesempregoResponse(true); // Lidar com resposta "Sim"
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        handleSeguroDesempregoResponse(false); // Lidar com resposta "Não"
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre seguro-desemprego
+function handleSeguroDesempregoResponse(response) {
+    clearPreviousButtons(); // Remove os botões anteriores
+
+    if (response) { // Quando o usuário seleciona "Sim"
+        showAgentMessage("Entendi...");
+        setTimeout(() => {
+            showAgentMessage("Viu como foi rápido? Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+            addWhatsAppButton(); // Adiciona o botão para redirecionar ao WhatsApp
+        }, 1000);
+    } else { // Quando o usuário seleciona "Não"
+        showAgentMessage("Tudo bem, vamos continuar analisando sua situação.");
+        // Adicionar lógica adicional caso necessário
+    }
+}
+
+// Função para adicionar o botão do WhatsApp
+function addWhatsAppButton() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center';
+
+    var button = document.createElement('a');
+    button.innerText = 'Fale com um atendente no WhatsApp';
+    button.href = 'https://api.whatsapp.com/send?phone=SEUNUMEROAQUI&text=Olá,%20gostaria%20de%20continuar%20meu%20atendimento.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block';
+    button.style.padding = '10px 20px';
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+  function handleDataSaidaAntesDepois(isAntes) {
+    clearPreviousButtons();
+
+    if (isAntes) {
+        showAgentMessage("A data de saída de seu último registro foi antes ou depois de setembro de 2022?");
+        askDataSaidaAntes2022();
+    } else {
+        showAgentMessage("Ótimo, estamos quase lá!");
+
+        setTimeout(() => {
+            showAgentMessage("Quando saiu do seu último emprego, chegou a receber as parcelas do seguro desemprego?");
+            askSeguroDesempregoFinal();
+        }, 1000);
+    }
+}
+
+function askDataSaidaAntes2022() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnAntes = document.createElement('button');
+    btnAntes.innerText = 'ANTES';
+    btnAntes.onclick = function () {
+        handleDataSaidaAntes2022(true); // Processa a resposta "Antes"
+    };
+
+    var btnDepois = document.createElement('button');
+    btnDepois.innerText = 'DEPOIS';
+    btnDepois.onclick = function () {
+        handleDataSaidaAntes2022(false); // Processa a resposta "Depois"
+    };
+
+    buttonsContainer.appendChild(btnAntes);
+    buttonsContainer.appendChild(btnDepois);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+function handleDataSaidaAntes2022(isAntes) {
+    clearPreviousButtons();
+
+    if (isAntes) {
+        showAgentMessage("Entendido, agora precisamos de mais alguns detalhes para continuar sua análise.");
+        // Continue com o fluxo desejado
+    } else {
+        showAgentMessage("Ótimo, estamos quase lá!");
+
+        setTimeout(() => {
+            showAgentMessage("Quando saiu do seu último emprego, chegou a receber as parcelas do seguro desemprego?");
+            askSeguroDesempregoFinal();
+        }, 1000);
+    }
+}
+
+function askSeguroDesempregoFinal() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'SIM';
+    btnSim.onclick = function () {
+        handleSeguroDesempregoFinal(true); // Processa a resposta "Sim"
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'NÃO';
+    btnNao.onclick = function () {
+        handleSeguroDesempregoFinal(false); // Processa a resposta "Não"
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+function handleSeguroDesempregoFinal(isSim) {
+    clearPreviousButtons();
+
+    if (isSim) {
+        showAgentMessage("Viu como foi rápido? Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+        addWhatsAppButtonFinal();
+    } else {
+        showAgentMessage("Tudo bem, vamos verificar outras informações para prosseguir.");
+        // Continue com o fluxo desejado
+    }
+}
+
+function addWhatsAppButtonFinal() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center';
+
+    var button = document.createElement('a');
+    button.innerText = 'Fale com um especialista';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1,%20acessei%20o%20site%20e%20estou%20pronta%20para%20continuar%20minha%20consulta%20com%20um%20especialista.';
+    button.target = '_blank';
+    button.style.display = 'inline-block';
+    button.style.padding = '10px 20px';
+    button.style.backgroundColor = '#FF69B4';
+    button.style.color = '#fff';
+    button.style.borderRadius = '5px';
+    button.style.textDecoration = 'none';
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+  
+  
+  // Função para perguntar se está empregada ou desempregada
+function askEmpregoStatus() {
+    clearPreviousButtons(); // Remove botões anteriores
+
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnEmpregada = document.createElement('button');
+    btnEmpregada.innerText = 'ESTOU EMPREGADA';
+    btnEmpregada.onclick = function () {
+        handleEmpregoStatusResponse(true);
+    };
+
+    var btnDesempregada = document.createElement('button');
+    btnDesempregada.innerText = 'ESTOU DESEMPREGADA';
+    btnDesempregada.onclick = function () {
+        handleEmpregoStatusResponse(false);
+    };
+
+    buttonsContainer.appendChild(btnEmpregada);
+    buttonsContainer.appendChild(btnDesempregada);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre estar empregada ou desempregada
+function handleEmpregoStatusResponse(isEmpregada) {
+    clearPreviousButtons();
+
+    if (isEmpregada) {
+        showAgentMessage("Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter auxílio-maternidade para essa criança. Mas não desanime!");
+        setTimeout(() => {
+            showAgentMessage("Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇");
+            addIndicacao(); // Função para adicionar o link de indicação
+        }, 2000);
+    } else {
+        showAgentMessage("Você chegou a trabalhar em um local que registrou a sua carteira de trabalho?");
+        askTrabalhoRegistrado(); // Pergunta sobre trabalho registrado
+    }
+}
+
+// Função para perguntar se trabalhou com carteira registrada
+function askTrabalhoRegistrado() {
+    clearPreviousButtons();
+
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'SIM';
+    btnSim.onclick = function () {
+        handleTrabalhoRegistradoResponse(true);
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'NÃO';
+    btnNao.onclick = function () {
+        handleTrabalhoRegistradoResponse(false);
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre trabalho registrado
+function handleTrabalhoRegistradoResponse(isRegistrado) {
+    clearPreviousButtons();
+
+    if (isRegistrado) {
+        showAgentMessage("Ok mamãe, agora falta alguns detalhes para finalizarmos o seu atendimento. 😊");
+        setTimeout(() => {
+            showAgentMessage("Sua carteira de trabalho é física ou digital?");
+            askTipoCarteira(); // Pergunta sobre o tipo de carteira
+        }, 2000);
+    } else {
+        showAgentMessage("Tudo bem, continuaremos analisando sua situação para ver como podemos ajudar.");
+    }
+}
+
+// Função para perguntar sobre o tipo de carteira
+function askTipoCarteira() {
+    clearPreviousButtons();
+
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnFisica = document.createElement('button');
+    btnFisica.innerText = 'FÍSICA';
+    btnFisica.onclick = function () {
+        handleTipoCarteiraResponse('fisica');
+    };
+
+    var btnNaoLembro = document.createElement('button');
+    btnNaoLembro.innerText = 'NÃO ME LEMBRO';
+    btnNaoLembro.onclick = function () {
+        handleTipoCarteiraResponse('nao_lembro');
+    };
+
+    buttonsContainer.appendChild(btnFisica);
+    buttonsContainer.appendChild(btnNaoLembro);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre o tipo de carteira
+function handleTipoCarteiraResponse(tipo) {
+    clearPreviousButtons();
+
+    if (tipo === 'fisica') {
+        showAgentMessage("Perfeito, agora preciso que nos informe qual foi o mês e ano que saiu do seu último emprego de carteira assinada.");
+    } else {
+        showAgentMessage("Tudo bem, farei mais algumas perguntas para te ajudar a lembrar.");
+        
+        setTimeout(() => {
+            showAgentMessage("A data de saída de seu último emprego foi antes ou depois de setembro de 2023?");
+            askDataSaidaEmprego(); // Chama a função para perguntar sobre a data de saída
+        }, 1000);
+    }
+}
+ 
+
+// Função para adicionar o link de indicação
+function addIndicacao() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center';
+
+    var button = document.createElement('a');
+    button.innerText = 'Programa de Indicação';
+    button.href = 'https://linkdoindicacao.com'; // Substitua pelo link real
+    button.target = '_blank';
+    button.style.display = 'inline-block';
+    button.style.padding = '10px 20px';
+    button.style.backgroundColor = '#FF69B4';
+    button.style.color = '#fff';
+    button.style.borderRadius = '5px';
+    button.style.textDecoration = 'none';
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+
+// Exemplo das novas funções para cada fluxo
+function askSaude7() {
+      var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    buttonsContainer.style.backgroundColor = 'transparent'; // Fundo rosa
+    buttonsContainer.style.padding = '5px'; // Espaçamento interno
+    buttonsContainer.style.borderRadius = '10px'; // Bordas arredondadas
+
+    var btnRegistro = document.createElement('button');
+    btnRegistro.innerText = 'Trabalho COM registro em carteira';
+    btnRegistro.style.display = 'block'; // Exibe como bloco
+    btnRegistro.style.marginBottom = '10px'; // Espaço entre os botões
+    btnRegistro.onclick = function() {
+        userData.contrato_trab = 'registro'; // Armazena a resposta
+        handleContratoResponse7(); // Processa a resposta
+    };
+
+    var btnSemRegistro = document.createElement('button');
+    btnSemRegistro.innerText = 'Trabalho SEM registro em carteira';
+    btnSemRegistro.style.display = 'block'; // Exibe como bloco
+    btnSemRegistro.onclick = function() {
+        userData.contrato_trab = 'sem registro'; // Armazena a resposta
+        handleContratoResponse7(); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnRegistro);
+    buttonsContainer.appendChild(btnSemRegistro);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+	// Função para lidar com a resposta sobre o tipo de contrato de trabalho
+function handleContratoResponse7(idleadqualificado) {
+    showAgentMessage(`Você respondeu: ${userData.contrato_trab === 'registro' ? "Trabalho COM registro em carteira" : "Trabalho SEM registro em carteira"}`);
+    console.log("Dados armazenados:", userData);
+
+    // Preenche os dados com nulo e false
+    userData.meses_gravidez = null;
+    userData.filho_menor = false;
+    userData.desempregada = false;
+    userData.trab_anterior = false;
+	userData.agencia_origem = "Walfa1";
+
+    // Verifica o tipo de contrato e gera a mensagem apropriada
+    if (userData.contrato_trab === 'registro') {
+        showAgentMessage(`Entendi ${userData.nome}, infelizmente, ao analisarmos sua situação atual, você não pode receber auxílio-maternidade para essa criança😪.`);
+		showAgentMessage('O chat foi encerrado.')
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    } else {
+        showAgentMessage(`Certo, clique no link para falar com um de nossos especialistas.`);
+		addIndicacao7meses(); // Chama a função para adicionar o botão
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    }
+
+    // Envia o JSON para a API
+    sendChatData(); // Chama a função que envia os dados
+}
+	
+	function addIndicacao7meses() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center'; // Centraliza o botão
+
+    var button = document.createElement('a');
+    button.innerText = 'Fale com um especialista';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1%2C%20acessei%20o%20site.%20Sou%20gestante.%20Minha%20gesta%C3%A7%C3%A3o%20est%C3%A1%20no%20s%C3%A9timo%20m%C3%AAs%20e%20n%C3%A3o%20tenho%20registro%20em%20carteira.%20Gostaria%20de%20falar%20com%20um%20atendente%20para%20saber%20como%20posso%20solicitar%20o%20aux%C3%ADlio%20maternidade.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block'; // Para que o estilo funcione
+    button.style.padding = '10px 20px'; // Espaçamento interno
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+	
+	function askSaude8() {
+      var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    buttonsContainer.style.backgroundColor = 'transparent'; // Fundo rosa
+    buttonsContainer.style.padding = '5px'; // Espaçamento interno
+    buttonsContainer.style.borderRadius = '10px'; // Bordas arredondadas
+
+    var btnRegistro = document.createElement('button');
+    btnRegistro.innerText = 'Trabalho COM registro em carteira';
+    btnRegistro.style.display = 'block'; // Exibe como bloco
+    btnRegistro.style.marginBottom = '10px'; // Espaço entre os botões
+	 btnRegistro.style.padding = '2px 1px 2px 1px'; // Espaço entre os botões	
+    btnRegistro.onclick = function() {
+        userData.contrato_trab = 'registro'; // Armazena a resposta
+        handleContratoResponse8()// Processa a resposta
+    };
+
+    var btnSemRegistro = document.createElement('button');
+    btnSemRegistro.innerText = 'Trabalho SEM registro em carteira';
+    btnSemRegistro.style.display = 'block'; // Exibe como bloco
+    btnSemRegistro.onclick = function() {
+        userData.contrato_trab = 'sem registro'; // Armazena a resposta
+        handleContratoResponse8(); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnRegistro);
+    buttonsContainer.appendChild(btnSemRegistro);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+	// Função para lidar com a resposta sobre o tipo de contrato de trabalho
+function handleContratoResponse8(idleadqualificado){
+    showAgentMessage(`Você respondeu: ${userData.contrato_trab === 'registro' ? "Trabalho COM registro em carteira" : "Trabalho SEM registro em carteira"}`);
+    console.log("Dados armazenados:", userData);
+
+    // Preenche os dados com nulo e false
+    userData.meses_gravidez = null;
+    userData.filho_menor = false;
+    userData.desempregada = false;
+    userData.trab_anterior = false;
+	userData.agencia_origem = "Walfa1";
+
+  // Verifica o tipo de contrato e gera a mensagem apropriada
+    if (userData.contrato_trab === 'registro') {
+        showAgentMessage(`Entendi ${userData.nome}, infelizmente, ao analisarmos sua situação atual, você não pode receber auxílio-maternidade para essa criança😪.`);
+		showAgentMessage('O chat foi encerrado.')
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    } else {
+        showAgentMessage(`Certo, clique no link para falar com um de nossos especialistas.`);
+		addIndicacao8meses(); // Chama a função para adicionar o botão
+    }
+
+    // Envia o JSON para a API
+    sendChatData(); // Chama a função que envia os dados
+}
+	
+	function addIndicacao8meses() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center'; // Centraliza o botão
+
+    var button = document.createElement('a');
+    button.innerText = 'Fale com um especialista';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1%2C%20acessei%20o%20site.%20Sou%20gestante.%20Minha%20gesta%C3%A7%C3%A3o%20est%C3%A1%20no%20oitavo%20m%C3%AAs%20e%20n%C3%A3o%20tenho%20registro%20em%20carteira.%20Gostaria%20de%20falar%20com%20um%20atendente%20para%20saber%20como%20posso%20solicitar%20o%20aux%C3%ADlio%20maternidade.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block'; // Para que o estilo funcione
+    button.style.padding = '10px 20px'; // Espaçamento interno
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+	
+
+	function askSaude9() {
+      var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    buttonsContainer.style.backgroundColor = 'transparent'; // Fundo rosa
+    buttonsContainer.style.padding = '5px'; // Espaçamento interno
+    buttonsContainer.style.borderRadius = '10px'; // Bordas arredondadas
+
+    var btnRegistro = document.createElement('button');
+    btnRegistro.innerText = 'Trabalho COM registro em carteira';
+    btnRegistro.style.display = 'block'; // Exibe como bloco
+    btnRegistro.style.marginBottom = '10px'; // Espaço entre os botões
+    btnRegistro.onclick = function() {
+        userData.contrato_trab = 'registro'; // Armazena a resposta
+        handleContratoResponse9();
+    };
+
+    var btnSemRegistro = document.createElement('button');
+    btnSemRegistro.innerText = 'Trabalho SEM registro em carteira';
+    btnSemRegistro.style.display = 'block'; // Exibe como bloco
+    btnSemRegistro.onclick = function() {
+        userData.contrato_trab = 'sem registro'; // Armazena a resposta
+        handleContratoResponse9()// Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnRegistro);
+    buttonsContainer.appendChild(btnSemRegistro);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+	// Função para lidar com a resposta sobre o tipo de contrato de trabalho
+function handleContratoResponse9(idleadqualificado) {
+    showAgentMessage(`Você respondeu: ${userData.contrato_trab === 'registro' ? "Trabalho COM registro em carteira" : "Trabalho SEM registro em carteira"}`);
+    console.log("Dados armazenados:", userData);
+
+    // Preenche os dados com nulo e false
+    userData.meses_gravidez = null;
+    userData.filho_menor = false;
+    userData.desempregada = false;
+    userData.trab_anterior = false;
+	userData.agencia_origem = "Walfa1";
+
+    // Verifica o tipo de contrato e gera a mensagem apropriada
+    if (userData.contrato_trab === 'registro') {
+        showAgentMessage(`Entendi ${userData.nome}, infelizmente, ao analisarmos sua situação atual, você não pode receber auxílio-maternidade para essa criança😪.`);
+		showAgentMessage('O chat foi encerrado.')
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    } else {
+        showAgentMessage(`Certo, clique no link para falar com um de nossos especialistas.`);
+		addIndicacao9meses()// Chama a função para adicionar o botão
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    }
+
+    // Envia o JSON para a API
+    sendChatData(); // Chama a função que envia os dados
+}
+	
+	function addIndicacao9meses() {
+    var buttonContainer = document.createElement('div');
+    buttonContainer.style.textAlign = 'center'; // Centraliza o botão
+
+    var button = document.createElement('a');
+    button.innerText = 'Fale com um especialista';
+    button.href = 'https://api.whatsapp.com/send?phone=5511974656373&text=Ol%C3%A1%2C%20acessei%20o%20site.%20Sou%20gestante.%20Minha%20gesta%C3%A7%C3%A3o%20est%C3%A1%20no%20nono%20m%C3%AAs%20e%20n%C3%A3o%20tenho%20registro%20em%20carteira.%20Gostaria%20de%20falar%20com%20um%20atendente%20para%20saber%20como%20posso%20solicitar%20o%20aux%C3%ADlio%20maternidade.';
+    button.target = '_blank'; // Abre o link em uma nova aba
+    button.style.display = 'inline-block'; // Para que o estilo funcione
+    button.style.padding = '10px 20px'; // Espaçamento interno
+    button.style.backgroundColor = '#FF69B4'; // Cor de fundo rosa
+    button.style.color = '#fff'; // Cor do texto
+    button.style.borderRadius = '5px'; // Bordas arredondadas
+    button.style.textDecoration = 'none'; // Remove underline
+
+    buttonContainer.appendChild(button);
+    document.getElementById('chat-messages').appendChild(buttonContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+function askContrato() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    buttonsContainer.style.backgroundColor = 'transparent'; // Fundo rosa
+    buttonsContainer.style.padding = '5px'; // Espaçamento interno
+    buttonsContainer.style.borderRadius = '10px'; // Bordas arredondadas
+
+    var btnRegistro = document.createElement('button');
+    btnRegistro.innerText = 'Trabalho COM registro em carteira';
+    btnRegistro.style.display = 'block'; // Exibe como bloco
+    btnRegistro.style.marginBottom = '10px'; // Espaço entre os botões
+    btnRegistro.onclick = function() {
+        userData.contrato_trab = 'registro'; // Armazena a resposta
+        handleContratoResponse(); // Processa a resposta
+    };
+
+    var btnSemRegistro = document.createElement('button');
+    btnSemRegistro.innerText = 'Trabalho SEM registro em carteira';
+    btnSemRegistro.style.display = 'block'; // Exibe como bloco
+    btnSemRegistro.onclick = function() {
+        userData.contrato_trab = 'sem registro'; // Armazena a resposta
+        handleContratoResponse(); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnRegistro);
+    buttonsContainer.appendChild(btnSemRegistro);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+// Função para lidar com a resposta sobre o tipo de contrato de trabalho
+function handleContratoResponse(idleadqualificado) {
+    showAgentMessage(`Você respondeu: ${userData.contrato_trab === 'registro' ? "Trabalho COM registro em carteira" : "Trabalho SEM registro em carteira"}`);
+    console.log("Dados armazenados:", userData);
+
+    // Preenche os dados com nulo e false
+    userData.meses_gravidez = null;
+    userData.filho_menor = false;
+    userData.desempregada = false;
+    userData.trab_anterior = false;
+	userData.agencia_origem = "Walfa1";
+
+    // Verifica o tipo de contrato e gera a mensagem apropriada
+    if (userData.contrato_trab === 'registro') {
+        showAgentMessage(`Entendi ${userData.nome}, infelizmente, ao analisarmos sua situação atual, você não pode receber auxílio-maternidade para essa criança😪.`);
+		showAgentMessage('O chat foi encerrado.')
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    } else {
+        showAgentMessage(`Certo, clique no link para falar com um de nossos especialistas.`);
+		addSouGestante(); // Chama a função para adicionar o botão
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    }
+
+    // Envia o JSON para a API
+    sendChatData(); // Chama a função que envia os dados
+}
+
+// Função para enviar os dados para a API
+function sendChatData() {
+    console.log("Dados captados e prontos para envio:", userData);
+
+    // Comentando a lógica de envio de dados, pois será usado outro endpoint
+    /*
+    fetch('https://us-central1-materna-prev-344348.cloudfunctions.net/leads-materna-prev', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.text(); // Recebe o texto da resposta
+    })
+    .then(text => {
+        console.log('Response text:', text);
+        // Verifica se o texto é a mensagem esperada e trata conforme necessário
+        if (text === 'Corpo da Requisição recebido, processamento em andamento.') {
+            // Aqui você pode adicionar qualquer ação necessária após o sucesso
+            showConfirmationPopup(); // Mostrar o popup de confirmação
+        } else {
+            console.error('Unexpected response:', text);
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+    */
+}
+
+
+
+// Função para exibir a resposta da API
+function displayApiResponse(data) {
+    showAgentMessage(data.response); // Presumindo que 'data.response' contém a mensagem da API
+}
+
+
+// Função para perguntar sobre filhos menores de 5 anos
+function askFilhoMenor() {
+    clearPreviousButtons(); // Limpa os botões anteriores
+
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function() {
+        userData.filho_menor = true; // Define filho_menor como true
+        handleFilhoMenorResponse(true); // Processa a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function() {
+        userData.filho_menor = false; // Define filho_menor como false
+        handleFilhoMenorResponse(false); // Processa a resposta
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+	
+
+
+
+
+// Função para lidar com a resposta sobre trabalho anterior
+function handleTrabalhoAnteriorResponse(response, idleadqualificado) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    // Preenche os dados restantes antes de enviar
+    userData.meses_gravidez = null;
+    userData.contrato_trab = null;
+    userData.filho_menor = false;
+    userData.desempregada = false;
+	userData.agencia_origem = "Walfa1";
+
+    if (response) {
+        // Se a resposta for "Sim", mostra a mensagem de direcionamento
+        showAgentMessage("Certo, clique no link. Um de nossos especialistas vai continuar seu atendimento.");
+		addDesempregada(); // Chama a função para adicionar o botão
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    } else {
+        // Se a resposta for "Não", mostra a mensagem de não elegibilidade
+        showAgentMessage(`Entendi ${userData.nome}, infelizmente, ao analisarmos sua situação atual, você não pode receber auxílio-maternidade para essa criança😪.`);
+		showAgentMessage('O chat foi encerrado.')
+		userData.idleadqualificado = idleadqualificado; // Armazenando o ID do lead
+    }
+
+    // Envia os dados para a API
+    sendChatData(); // Chama a função que envia os dados
+}
+
+
+
+// Função para exibir a resposta da API
+function displayApiResponse(data) {
+    showAgentMessage(data.response);
+}
+</script>
+
+<?php wp_footer(); ?>
+
+</body>
+</html>
