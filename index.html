@@ -35,8 +35,9 @@ if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_
     <div id="chat-messages">
         <div class="message agent">
             <span class="text">Seja bem-vinda à PrevX Assessoria! 🌸 Com mais de 60 mil mães atendidas e 15 anos no mercado, temos orgulho de nossos 98,7% de sucesso na liberação do auxílio-maternidade.</span>
-            <img src="https://img.icons8.com/?size=100&id=46419&format=png&color=000000" alt="Avatar" class="avatar" />
+            <img src="https://i.ibb.co/G0XsvfW/Whats-App-Image-2025-01-09-at-10-47-53.jpg" alt="Avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 10px;" />
         </div>
+        
     </div>
     <div id="chat-input">
         <input type="text" id="message-input" placeholder="Digite uma mensagem..." />
@@ -433,6 +434,21 @@ function askSolicitacao() {
     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 }
 
+// Função para lidar com a resposta de solicitação anterior
+function handleSolicitacaoResponse(response) {
+    clearPreviousButtons(); // Remove botões anteriores
+
+    if (response) {
+        showAgentMessage("Entendido, vamos prosseguir com o atendimento.");
+        // Adicione aqui a próxima lógica, se necessário
+    } else {
+        showAgentMessage("Desejamos que o seu maior presente esteja com muita saúde, mamãe!");
+        showAgentMessage(`${userData.nome}, você tem alguma criança com menos de 5 anos de idade?`);
+        setTimeout(() => askFilhoMenor(), 1000); // Pergunta sobre filhos menores de 5 anos
+    }
+}
+
+
 
 // Função para lidar com a resposta sobre filhos menores
 function handleFilhoMenorResponse(response) {
@@ -445,8 +461,10 @@ function handleFilhoMenorResponse(response) {
         askBeneficioRecebido(); // Pergunta sobre o benefício
     } else {
         // Se a resposta for "Não", pergunta sobre o mês e ano do nascimento
-        showAgentMessage(`${userData.nome}, qual o mês e ano do nascimento do seu primogênito? (exemplo: 01/2020)`);
-        askNascimentoPrimogenito(); // Pergunta sobre nascimento
+        showAgentMessage(`Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!
+        
+        Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇`);
+       // askNascimentoPrimogenito(); // Pergunta sobre nascimento
     }
 }
   
@@ -473,6 +491,11 @@ function handleConfirmacaoData(response) {
     if (response) {
         showAgentMessage("Quando o seu pequeno nasceu, você trabalhava de carteira assinada?");
         askCarteiraAssinada(); // Pergunta sobre carteira assinada
+    
+} else {
+        showAgentMessage("Tudo bem, mamãe! Preciso que dessa vez, coloque a data correta do nascimento do seu pequeno!");
+        // Chama novamente a função para inserir a data
+        askNascimentoPrimogenito();
     }
 }
 
@@ -506,7 +529,7 @@ function handleCarteiraAntesResponse(response) {
     console.log("Dados armazenados:", userData);
 
     if (response) {
-        showAgentMessage(`Ok ${userData.nome}, agora resta poucos detalhes para finalizar a sua consulta!`);
+        showAgentMessage(`Fantástico ${userData.nome}, agora resta poucos detalhes para finalizar a sua consulta!`);
 
         // Pergunta sobre seguro-desemprego
         setTimeout(() => {
@@ -550,7 +573,7 @@ function handleSeguroDesempregoResponse(response) {
         showAgentMessage("Mamãe, você tem carteira de trabalho digital ou física, acesso ao aplicativo do INSS e sua rescisão contratual em mãos?");
         askDocumentosDisponiveis(); // Chama a função de documentos
     } else {
-        showAgentMessage("Certo, mamãe. Vamos continuar analisando a sua situação.");
+        showAgentMessage("Você possui carteira de trabalho é física ou digital?");
     }
 }
 
@@ -916,7 +939,8 @@ function askNascimentoPrimogenito() {
 function handleBeneficioResponse(response) {
     if (response) {
         // Se a resposta for "Sim", o chatbot pode avançar para outra lógica (ajustar conforme necessário)
-        showAgentMessage("Certo, vamos continuar analisando sua situação.");
+        showAgentMessage("Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!");
+        showAgentMessage("Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇");
     } else {
         // Se a resposta for "Não", pergunta sobre o nascimento do primogênito
         showAgentMessage(`${userData.nome}, qual o mês e ano do nascimento do seu primogênito? (exemplo: 10/2020)`);
@@ -950,16 +974,26 @@ function confirmDataNascimento() {
     var buttonsContainer = document.createElement('div');
     buttonsContainer.id = 'buttons-container';
 
+    // Botão Sim
     var btnSim = document.createElement('button');
     btnSim.innerText = 'Sim';
     btnSim.onclick = function () {
         handleConfirmacaoData(true); // Confirmação da data
     };
-
     buttonsContainer.appendChild(btnSim);
+
+    // Botão Não
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        handleConfirmacaoData(false); // Lida com a resposta "Não"
+    };
+    buttonsContainer.appendChild(btnNao);
+
     document.getElementById('chat-messages').appendChild(buttonsContainer);
     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 }
+
 
 
 
@@ -974,14 +1008,14 @@ function askGravida() {
     btnSim.innerText = 'Sim';
     btnSim.onclick = function() {
         userData.gravida = true;
-        handleGravidezResponse(true); // Chama a função correta para lidar com a resposta
+        handleGravidezResponse(true); // Chama a função correta para lidar com a resposta "Sim"
     };
 
     var btnNao = document.createElement('button');
     btnNao.innerText = 'Não';
     btnNao.onclick = function() {
         userData.gravida = false;
-        handleGravidezResponse(false); // Chama a função correta para lidar com a resposta
+        handleGravidezResponse(false); // Chama a função correta para lidar com a resposta "Não"
     };
 
     buttonsContainer.appendChild(btnSim);
@@ -992,7 +1026,7 @@ function askGravida() {
 
 // Função para lidar com a resposta sobre gravidez
 function handleGravidezResponse(response) {
-    clearPreviousButtons(); // Remove botões anteriores, se necessário
+    clearPreviousButtons(); // Remove botões anteriores
 
     if (response) {
         // Caso a resposta seja "Sim"
@@ -1005,9 +1039,10 @@ function handleGravidezResponse(response) {
     } else {
         // Caso a resposta seja "Não"
         showAgentMessage("Você tem algum filho menor de 5 anos?");
-        askFilhoMenor(); // Chama a próxima pergunta
+        setTimeout(() => askFilhoMenor(), 1000); // Aguarda um pouco antes de chamar a próxima pergunta
     }
 }
+
 
 
 
@@ -1114,11 +1149,8 @@ function handleSeguroDesempregoResponse(response) {
     clearPreviousButtons(); // Remove os botões anteriores
 
     if (response) { // Quando o usuário seleciona "Sim"
-        showAgentMessage("Entendi...");
-        setTimeout(() => {
-            showAgentMessage("Viu como foi rápido? Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
-            addWhatsAppButton(); // Adiciona o botão para redirecionar ao WhatsApp
-        }, 1000);
+        showAgentMessage("Mamãe, você tem carteira de trabalho digital ou física, acesso ao aplicativo do INSS e sua rescisão contratual em mãos?");
+
     } else { // Quando o usuário seleciona "Não"
         showAgentMessage("Tudo bem, vamos continuar analisando sua situação.");
         // Adicionar lógica adicional caso necessário
