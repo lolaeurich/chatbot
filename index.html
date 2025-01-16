@@ -1420,7 +1420,26 @@ function handleEmpregoStatusResponse(isEmpregada) {
         showAgentMessage("Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter auxílio-maternidade para essa criança. Mas não desanime!");
         setTimeout(() => {
             showAgentMessage("Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇");
-            addIndicacao(); // Função para adicionar o link de indicação
+                // Cria o botão verde para redirecionar para o WhatsApp
+          var buttonSite = document.createElement('button');
+        buttonSite.innerText = 'Quero indicar!';
+        buttonSite.style.backgroundColor = '#d008f1';
+        buttonSite.style.color = 'white';
+        buttonSite.style.fontWeight = '700';
+        buttonSite.style.padding = '10px 20px';
+        buttonSite.style.border = 'none';
+        buttonSite.style.borderRadius = '5px';
+        buttonSite.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonSite.onclick = function() {
+            var whatsappURL = `https://indica.prevxassessoria.com.br/`;
+            window.open(whatsappURL, '_blank'); // Abre o Site em uma nova aba
+        };
+
+        // Adiciona o botão ao chat
+        document.getElementById('chat-messages').appendChild(buttonSite);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
         }, 2000);
     } else {
         showAgentMessage("Você chegou a trabalhar em um local que registrou a sua carteira de trabalho?");
@@ -1458,15 +1477,160 @@ function handleTrabalhoRegistradoResponse(isRegistrado) {
     clearPreviousButtons();
 
     if (isRegistrado) {
-        showAgentMessage("Ok mamãe, agora falta alguns detalhes para finalizarmos o seu atendimento. 😊");
+        showAgentMessage("Pode nos informar a data, por favor? Para isso, basta responder a pergunta abaixo:");
         setTimeout(() => {
-            showAgentMessage("Sua carteira de trabalho é física ou digital?");
-            askTipoCarteira(); // Pergunta sobre o tipo de carteira
+            showAgentMessage("A data de saída de seu último emprego foi antes ou depois de setembro de 2023?");
+            askDataTrabalhada(); // Pergunta sobre a data trabalhada
         }, 2000);
     } else {
         showAgentMessage("Tudo bem, continuaremos analisando sua situação para ver como podemos ajudar.");
     }
 }
+
+// Função para perguntar a data trabalhada
+function askDataTrabalhada() {
+    clearPreviousButtons();
+
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnAntes = document.createElement('button');
+    btnAntes.innerText = 'ANTES';
+    btnAntes.onclick = function () {
+        handleDataTrabalhadaResponse(true);
+    };
+
+    var btnDepois = document.createElement('button');
+    btnDepois.innerText = 'DEPOIS';
+    btnDepois.onclick = function () {
+        handleDataTrabalhadaResponse(false);
+    };
+
+    buttonsContainer.appendChild(btnAntes);
+    buttonsContainer.appendChild(btnDepois);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta da data trabalhada
+function handleDataTrabalhadaResponse(isAntes) {
+    clearPreviousButtons();
+
+    if (isAntes) {
+        showAgentMessage("A data de saída de seu último registro foi antes ou depois de setembro de 2022?"); //----------------
+        setTimeout(() => {
+            askDataTrabalhada2(); // Pergunta sobre a data trabalhada 2
+        }, 2000);
+    } else {
+        showAgentMessage("Perfeito Mamãe! Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+    
+        // Cria o botão verde para redirecionar para o WhatsApp
+        var buttonWhatsApp = document.createElement('button');
+        buttonWhatsApp.innerText = 'Fale com um especialista!';
+        buttonWhatsApp.style.backgroundColor = '#25D366'; // Cor verde do WhatsApp
+        buttonWhatsApp.style.color = 'white';
+        buttonWhatsApp.style.padding = '10px 20px';
+        buttonWhatsApp.style.border = 'none';
+        buttonWhatsApp.style.borderRadius = '5px';
+        buttonWhatsApp.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonWhatsApp.onclick = function() {
+        var nomeUsuario = userData.nome || 'Usuário'; // Caso o nome ainda não tenha sido capturado
+        var whatsappURL = `https://wa.me/5511975242253?text=Oi%2C%20meu%20nome%20é%20${encodeURIComponent(nomeUsuario)},%20estou%20grávida%20e%20saí%20do%20meu%20último%20emprego%20após%20setembro%20de%202023.%20Gostaria%20de%20ajuda%20para%20solicitar%20meu%20auxílio-maternidade!`;
+        window.open(whatsappURL, '_blank'); // Abre o WhatsApp em uma nova aba
+    };
+
+     // Adiciona o botão ao chat
+     document.getElementById('chat-messages').appendChild(buttonWhatsApp);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+    }
+}
+
+// Função para perguntar a data trabalhada 2
+function askDataTrabalhada2() {
+    clearPreviousButtons();
+
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnAntes = document.createElement('button');
+    btnAntes.innerText = 'ANTES';
+    btnAntes.onclick = function () {
+        handleDataTrabalhada2Response(true);
+    };
+
+    var btnDepois = document.createElement('button');
+    btnDepois.innerText = 'DEPOIS';
+    btnDepois.onclick = function () {
+        handleDataTrabalhada2Response(false);
+    };
+
+    buttonsContainer.appendChild(btnAntes);
+    buttonsContainer.appendChild(btnDepois);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta da data trabalhada 2
+function handleDataTrabalhada2Response(isAntes) {
+    clearPreviousButtons();
+
+    if (isAntes) {
+        showAgentMessage("Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!"); 
+        setTimeout(() => {
+            showAgentMessage("Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇 (LINK DO PROGRAMA DE INDICAÇÃO"); 
+
+                        // Cria o botão verde para redirecionar para o SITE
+          var buttonSite = document.createElement('button');
+        buttonSite.innerText = 'Quero indicar!';
+        buttonSite.style.backgroundColor = '#d008f1';
+        buttonSite.style.color = 'white';
+        buttonSite.style.fontWeight = '700';
+        buttonSite.style.padding = '10px 20px';
+        buttonSite.style.border = 'none';
+        buttonSite.style.borderRadius = '5px';
+        buttonSite.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o site com a mensagem pré-preenchida
+        buttonSite.onclick = function() {
+            var whatsappURL = `https://indica.prevxassessoria.com.br/`;
+            window.open(whatsappURL, '_blank'); // Abre o Site em uma nova aba
+        };
+
+        // Adiciona o botão ao chat
+        document.getElementById('chat-messages').appendChild(buttonSite);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+        }, 2000);
+    } else {
+        showAgentMessage("Perfeito Mamãe!  Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+
+        
+        // Cria o botão verde para redirecionar para o WhatsApp
+        var buttonWhatsApp = document.createElement('button');
+        buttonWhatsApp.innerText = 'Fale com um especialista!';
+        buttonWhatsApp.style.backgroundColor = '#25D366'; // Cor verde do WhatsApp
+        buttonWhatsApp.style.color = 'white';
+        buttonWhatsApp.style.padding = '10px 20px';
+        buttonWhatsApp.style.border = 'none';
+        buttonWhatsApp.style.borderRadius = '5px';
+        buttonWhatsApp.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonWhatsApp.onclick = function() {
+        var nomeUsuario = userData.nome || 'Usuário'; // Caso o nome ainda não tenha sido capturado
+        var whatsappURL = `https://wa.me/5511975242253?text=Oi%2C%20meu%20nome%20é%20${encodeURIComponent(nomeUsuario)},%20estou%20grávida,%20saí%20do%20meu%20último%20emprego%20antes%20de%20setembro%20de%202023,%20mas%20depois%20de%20setembro%20de%202022.%20Gostaria%20de%20ajuda%20para%20solicitar%20meu%20auxílio-maternidade!`;
+        window.open(whatsappURL, '_blank'); // Abre o WhatsApp em uma nova aba
+    };
+
+     // Adiciona o botão ao chat
+     document.getElementById('chat-messages').appendChild(buttonWhatsApp);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+    }
+}
+
+
+
 
 // Função para perguntar sobre o tipo de carteira
 function askTipoCarteira() {
