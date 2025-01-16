@@ -116,7 +116,7 @@ if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    max-width: 220px; /* Largura máxima da mensagem */
+    max-width: 205px; /* Largura máxima da mensagem */
 }
 
 .typing-indicator {
@@ -158,15 +158,24 @@ if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_
 
 #buttons-container {
     display: flex;
-	flex-direction: column;
+    flex-direction: column;
     justify-content: space-around;
     margin-top: 10px;
-	row-gap: 5px;
+    margin-bottom: 10px;
+    row-gap: 5px;
+    align-items: center;
 }
 	
 	#buttons-container button {
-		    margin-bottom: 5px;
-	}
+        margin-bottom: 5px;
+    width: 70%;
+    border-radius: 15px;
+    height: 26px;
+    border: none;
+    background-color: lightpink;
+    color: black;
+    font-weight: bold;
+}
 </style>
 
 <!-- JavaScript -->
@@ -347,8 +356,9 @@ function showAgentMessage(text) {
     agentTextSpan.innerText = text;
 
     var agentAvatar = document.createElement('img');
-    agentAvatar.src = "https://img.icons8.com/?size=100&id=46419&format=png&color=000000";
+    agentAvatar.src = "https://i.ibb.co/G0XsvfW/Whats-App-Image-2025-01-09-at-10-47-53.jpg";
     agentAvatar.classList.add('avatar');
+    agentAvatar.style.cssText = "width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-left: 10px;"; 
 
     agentMessageContainer.appendChild(agentTextSpan);
     agentMessageContainer.appendChild(agentAvatar);
@@ -451,6 +461,7 @@ function handleSolicitacaoResponse(response) {
 
 
 // Função para lidar com a resposta sobre filhos menores
+// Função para lidar com a resposta sobre filhos menores
 function handleFilhoMenorResponse(response) {
     showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
     console.log("Dados armazenados:", userData);
@@ -461,12 +472,34 @@ function handleFilhoMenorResponse(response) {
         askBeneficioRecebido(); // Pergunta sobre o benefício
     } else {
         // Se a resposta for "Não", pergunta sobre o mês e ano do nascimento
-        showAgentMessage(`Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!
-        
+        showAgentMessage(`Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter o auxílio-maternidade para essa criança. Mas não desanime!
+
         Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇`);
-       // askNascimentoPrimogenito(); // Pergunta sobre nascimento
+
+        // Cria o botão verde para redirecionar para o WhatsApp
+        var buttonSite = document.createElement('button');
+        buttonSite.innerText = 'Quero indicar!';
+        buttonSite.style.backgroundColor = '#d008f1';
+        buttonSite.style.color = 'white';
+        buttonSite.style.fontWeight = '700';
+        buttonSite.style.padding = '10px 20px';
+        buttonSite.style.border = 'none';
+        buttonSite.style.borderRadius = '5px';
+        buttonSite.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonSite.onclick = function() {
+            var whatsappURL = `https://indica.prevxassessoria.com.br/`;
+            window.open(whatsappURL, '_blank'); // Abre o Site em uma nova aba
+        };
+
+        // Adiciona o botão ao chat
+        document.getElementById('chat-messages').appendChild(buttonSite);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
     }
 }
+
+
   
   // Função para perguntar se a data informada está correta
 function confirmDataNascimento() {
@@ -727,7 +760,31 @@ function handleCarteiraAssinadaResponse(response) {
     clearPreviousButtons(); // Remove os botões anteriores
     if (response) {
         // Se a resposta for "Sim"
-        showAgentMessage(`Ok ${userData.nome}, agora resta poucos detalhes para finalizar a sua consulta!`);
+        showAgentMessage(`Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!`);
+        showAgentMessage(`Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇 (LINK DO PROGRAMA DE INDICAÇÃO`);
+
+        // Cria o botão verde para redirecionar para o WhatsApp
+        var buttonSite = document.createElement('button');
+        buttonSite.innerText = 'Quero indicar!';
+        buttonSite.style.backgroundColor = '#d008f1';
+        buttonSite.style.color = 'white';
+        buttonSite.style.fontWeight = '700';
+        buttonSite.style.padding = '10px 20px';
+        buttonSite.style.border = 'none';
+        buttonSite.style.borderRadius = '5px';
+        buttonSite.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonSite.onclick = function() {
+            var whatsappURL = `https://indica.prevxassessoria.com.br/`;
+            window.open(whatsappURL, '_blank'); // Abre o Site em uma nova aba
+        };
+
+        // Adiciona o botão ao chat
+        document.getElementById('chat-messages').appendChild(buttonSite);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+
+
     } else {
         // Se a resposta for "Não"
         showAgentMessage("Mamãe, você chegou a ter carteira registrada ANTES do nascimento do seu filho?");
@@ -811,6 +868,7 @@ function askSeguroDesemprego() {
 }
 
 // Função para lidar com a resposta sobre o seguro-desemprego
+// Função para lidar com a resposta sobre o seguro-desemprego
 function handleSeguroDesempregoResponse(response) {
     showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
     console.log("Dados armazenados:", userData);
@@ -819,32 +877,52 @@ function handleSeguroDesempregoResponse(response) {
         showAgentMessage(
             "Mamãe, você tem carteira de trabalho digital ou física, acesso ao aplicativo do INSS e sua rescisão contratual em mãos?"
         );
-        askDocumentosDisponiveis(); // Pergunta sobre os documentos
+        askCarteiraTrabalho(); // Pergunta sobre os documentos
     } else {
         showAgentMessage("Certo, mamãe. Vamos continuar analisando a sua situação.");
     }
 }
 
-function askDocumentosDisponiveis() {
+// Função para perguntar sobre os documentos (Carteira de Trabalho, App INSS, Rescisão)
+function askCarteiraTrabalho() {
     var buttonsContainer = document.createElement('div');
     buttonsContainer.id = 'buttons-container';
 
     var btnSim = document.createElement('button');
     btnSim.innerText = 'Sim';
     btnSim.onclick = function () {
-        clearPreviousButtons(); // Limpa os botões anteriores
-        showAgentMessage(`${userData.nome}, qual seria o mês e o ano que você saiu do seu último trabalho ANTES do seu pequeno nascer? (exemplo: 06/2022)`);
-
-        // Aguarda um tempo e chama a próxima função
-        setTimeout(() => askMesAnoUltimoEmprego(), 1000); 
+        userData.documentos_disponiveis = true; // Define como verdadeiro
+        handleDocumentosDisponiveisResponse(true); // Processa a resposta
     };
 
     var btnNao = document.createElement('button');
     btnNao.innerText = 'Não';
     btnNao.onclick = function () {
-        clearPreviousButtons(); // Limpa os botões anteriores
-        showAgentMessage("Sem problemas, mamãe. Você pode organizar os documentos e voltar para concluir.");
+        userData.documentos_disponiveis = false; // Define como falso
+        handleDocumentosDisponiveisResponse(false); // Processa a resposta
     };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para lidar com a resposta sobre a disponibilidade dos documentos
+function handleDocumentosDisponiveisResponse(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage(
+            `${userData.nome}, qual seria o mês e o ano que você saiu do seu último trabalho ANTES do seu pequeno nascer? (exemplo: 06/2022)`
+        );
+        setTimeout(() => askMesAnoUltimoEmprego(), 1000); // Chama a próxima pergunta
+    } else {
+        showAgentMessage("Sem problemas, mamãe. Você pode organizar os documentos e voltar para concluir.");
+    }
+
+
 
     buttonsContainer.appendChild(btnSim);
     buttonsContainer.appendChild(btnNao);
@@ -941,6 +1019,27 @@ function handleBeneficioResponse(response) {
         // Se a resposta for "Sim", o chatbot pode avançar para outra lógica (ajustar conforme necessário)
         showAgentMessage("Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!");
         showAgentMessage("Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇");
+
+          // Cria o botão verde para redirecionar para o WhatsApp
+          var buttonSite = document.createElement('button');
+        buttonSite.innerText = 'Quero indicar!';
+        buttonSite.style.backgroundColor = '#d008f1';
+        buttonSite.style.color = 'white';
+        buttonSite.style.fontWeight = '700';
+        buttonSite.style.padding = '10px 20px';
+        buttonSite.style.border = 'none';
+        buttonSite.style.borderRadius = '5px';
+        buttonSite.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonSite.onclick = function() {
+            var whatsappURL = `https://indica.prevxassessoria.com.br/`;
+            window.open(whatsappURL, '_blank'); // Abre o Site em uma nova aba
+        };
+
+        // Adiciona o botão ao chat
+        document.getElementById('chat-messages').appendChild(buttonSite);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
     } else {
         // Se a resposta for "Não", pergunta sobre o nascimento do primogênito
         showAgentMessage(`${userData.nome}, qual o mês e ano do nascimento do seu primogênito? (exemplo: 10/2020)`);

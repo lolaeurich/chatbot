@@ -1,0 +1,16 @@
+// Cria o botão verde para redirecionar para o WhatsApp
+var buttonWhatsApp = document.createElement('button');
+buttonWhatsApp.innerText = 'Quero indicar!';
+buttonWhatsApp.style.backgroundColor = '#25D366'; // Cor verde do WhatsApp
+buttonWhatsApp.style.color = 'white';
+buttonWhatsApp.style.padding = '10px 20px';
+buttonWhatsApp.style.border = 'none';
+buttonWhatsApp.style.borderRadius = '5px';
+buttonWhatsApp.style.cursor = 'pointer';
+
+// Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+buttonWhatsApp.onclick = function() {
+    var nomeUsuario = userData.nome || 'Usuário'; // Caso o nome ainda não tenha sido capturado
+    var whatsappURL = `https://wa.me/5511975242253?text=Oi%2C%20meu%20nome%20é%20${encodeURIComponent(nomeUsuario)}%20e%20quero%20indicar%20uma%20mamãe%20para%20receber%20o%20Aux%C3%ADlio-maternidade!`;
+    window.open(whatsappURL, '_blank'); // Abre o WhatsApp em uma nova aba
+};
