@@ -889,27 +889,15 @@ function askMesAnoUltimoEmprego03() {
             userData.saiu_emprego = messageText;
             addUserMessage(messageText); // Adiciona a mensagem no chat
             input.value = ''; // Limpa o campo de entrada
-
-            handleCompreendo()
+            showAgentMessage("Compreendo");
+            showAgentMessage(`Qual foi o mês e o ano em que você saiu do trabalho antes do nascimento do seu pequeno? (Exemplo: 01/2023)`);
+            setTimeout(() => askMesAnoUltimoEmprego03(), 1000); // Aguarda para chamar a próxima função
         } else {
             showAgentMessage("Por favor, insira uma data válida no formato MM/AAAA.");
         }
     };
 }
 
-
-// Função para lidar com a confirmação da data de nascimento
-function handleCompreendo(response) {
-    if (response) {
-        showAgentMessage("Compreendo");
-        askCarteiraFluxoFinal()
-    
-} else {
-        showAgentMessage("Tudo bem, mamãe! Preciso que dessa vez, coloque a data correta do nascimento do seu pequeno!");
-        // Chama novamente a função para inserir a data
-        askCarteiraFluxoFinal();
-    }
-}
 
 
 
@@ -924,8 +912,8 @@ function askSaiuUltimoEmprego() {
     btnSim.innerText = 'Sim';
     btnSim.onclick = function () {
         clearPreviousButtons(); // Limpa os botões anteriores
-        showAgentMessage(`Pode nos informar a data, por favor? (Exemplo: 06/2022):`);
-        setTimeout(() => askMesAnoUltimoEmprego02(), 1000); // Aguarda para chamar a próxima função
+        showAgentMessage(`Essas contribuições foram feitas antes de 2022?`);
+        setTimeout(() => askAntesde2022(), 1000); // Aguarda para chamar a próxima função
     };
 
     var btnNao = document.createElement('button');
@@ -964,6 +952,75 @@ document.getElementById('chat-messages').scrollTop = document.getElementById('ch
     document.getElementById('chat-messages').appendChild(buttonsContainer);
     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 }
+
+
+function askAntesde2022() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim, foram feitas antes de 2022';
+    btnSim.onclick = function () {
+        clearPreviousButtons(); // Limpa os botões anteriores
+        showAgentMessage(`Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!`);
+        showAgentMessage(`Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇`);
+
+// Cria o botão verde para redirecionar para o WhatsApp
+var buttonSite = document.createElement('button');
+buttonSite.innerText = 'Quero indicar!';
+buttonSite.style.backgroundColor = '#d008f1';
+buttonSite.style.color = 'white';
+buttonSite.style.fontWeight = '700';
+buttonSite.style.padding = '10px 20px';
+buttonSite.style.border = 'none';
+buttonSite.style.borderRadius = '5px';
+buttonSite.style.cursor = 'pointer';
+
+// Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+buttonSite.onclick = function() {
+    var whatsappURL = `https://indica.prevxassessoria.com.br/`;
+    window.open(whatsappURL, '_blank'); // Abre o Site em uma nova aba
+};
+
+// Adiciona o botão ao chat
+document.getElementById('chat-messages').appendChild(buttonSite);
+document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não, foram feitas após 2022';
+    btnNao.onclick = function () {
+        clearPreviousButtons(); // Limpa os botões anteriores
+        showAgentMessage("Viu como foi rápido? Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+        
+        // Cria o botão verde para redirecionar para o WhatsApp
+        var buttonWhatsApp = document.createElement('button');
+     buttonWhatsApp.innerText = 'Fale com um especialista!';
+     buttonWhatsApp.style.backgroundColor = '#25D366'; // Cor verde do WhatsApp
+     buttonWhatsApp.style.color = 'white';
+     buttonWhatsApp.style.padding = '10px 20px';
+     buttonWhatsApp.style.border = 'none';
+     buttonWhatsApp.style.borderRadius = '5px';
+     buttonWhatsApp.style.cursor = 'pointer';
+
+     // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+     buttonWhatsApp.onclick = function() {
+     var nomeUsuario = userData.nome || 'Usuário'; // Caso o nome ainda não tenha sido capturado
+     var whatsappURL = `https://wa.me/5511975242253?text=Oi%2C%20meu%20nome%20é%20${encodeURIComponent(nomeUsuario)},%20tenho%20uma%20criança%20com%20menos%20de%205%20anos.%20Quando%20ele%20nasceu%20eu%20não%20estava%20com%20a%20carteira%20assinada,%20mas%20já%20a%20tive%20e%20recebi%20seguro%20desemprego. %20Fui%20eu%20quem%20pediu%20as%20contas%20no%meu%20último%20emprego,%20não%20recebi%20valores%20pela%20gravidez%20e%20saí%20antes%20de%20setembro%20de%202023. %20Gostaria%20de%20ajuda%20para%20solicitar%20meu%20auxílio-maternidade!`;
+     window.open(whatsappURL, '_blank'); // Abre o WhatsApp em uma nova aba
+ };
+
+  // Adiciona o botão ao chat
+  document.getElementById('chat-messages').appendChild(buttonWhatsApp);
+     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
 
 
 // Função para perguntar sobre o nascimento do primogênito
