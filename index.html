@@ -404,7 +404,7 @@ function addUserMessage(messageText) {
     processUserResponse(messageText);
 }
 
-// Função para processar a resposta do usuário
+// 01 - Função para processar a resposta do usuário
 function processUserResponse(messageText, idleadcontato) {
     if (!userData.nome) {
         userData.nome = messageText;
@@ -419,7 +419,7 @@ function processUserResponse(messageText, idleadcontato) {
 }
 
 
-// Função para perguntar sobre a solicitação anterior
+// 01 - Função para perguntar sobre a solicitação anterior
 function askSolicitacao() {
     var buttonsContainer = document.createElement('div');
     buttonsContainer.id = 'buttons-container';
@@ -444,6 +444,65 @@ function askSolicitacao() {
     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 }
 
+
+// 02 e 03 - Função para lidar com a resposta sobre gravidez
+function handleGravidezResponse(response) {
+    clearPreviousButtons(); // Remove botões anteriores
+
+    if (response) {
+        // Caso a resposta seja "Sim"
+        showAgentMessage("Que maravilha! Que ele(a) nasça com muita saúde 🥰...");
+
+        setTimeout(() => {
+            showAgentMessage("Você se encontra com quantos meses de gestação?");
+            askMesesGestacao(); // Chama a próxima etapa
+        }, 1000);
+    } else {
+        // Caso a resposta seja "Não"
+        showAgentMessage("Você tem algum filho menor de 5 anos?");
+        setTimeout(() => askFilhoMenor(), 1000); // Aguarda um pouco antes de chamar a próxima pergunta
+    }
+}
+
+
+// 02 - Função para perguntar sobre os meses de gestação
+function askMesesGestacao() {
+    clearPreviousButtons(); // Remove botões anteriores
+
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    buttonsContainer.style.display = 'grid';
+    buttonsContainer.style.gridTemplateColumns = '1fr 1fr'; // Duas colunas
+    buttonsContainer.style.gap = '10px'; // Espaçamento entre os botões
+
+    for (let i = 1; i <= 9; i++) {
+        const button = document.createElement('button');
+        button.innerText = `${i} ${i > 1 ? 'meses' : 'mês'}`;
+        button.onclick = function () {
+            userData.meses_gravidez = i; // Armazena o número de meses
+            handleMesesGestacaoResponse(i); // Processa a resposta
+        };
+        buttonsContainer.appendChild(button);
+    }
+
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// 04 - Função para lidar com a resposta sobre os meses de gestação
+function handleMesesGestacaoResponse(meses) {
+    showAgentMessage(`Você respondeu: ${meses} ${meses > 1 ? 'meses' : 'mês'}.`);
+    console.log("Dados armazenados:", userData);
+
+    // Adicione aqui o próximo fluxo baseado na resposta
+    setTimeout(() => {
+        showAgentMessage("Atualmente, você está empregada ou está desempregada?");
+        askEmpregoStatus();
+        // Continue o fluxo conforme necessário
+    }, 1000);
+} 
+
+
 // Função para lidar com a resposta de solicitação anterior
 function handleSolicitacaoResponse(response) {
     clearPreviousButtons(); // Remove botões anteriores
@@ -459,8 +518,6 @@ function handleSolicitacaoResponse(response) {
 }
 
 
-
-// Função para lidar com a resposta sobre filhos menores
 // Função para lidar com a resposta sobre filhos menores
 function handleFilhoMenorResponse(response) {
     showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
@@ -500,30 +557,12 @@ function handleFilhoMenorResponse(response) {
 }
 
 
-  
-  // Função para perguntar se a data informada está correta
-function confirmDataNascimento() {
-    showAgentMessage("A data acima está correta, mamãe?");
-    
-    var buttonsContainer = document.createElement('div');
-    buttonsContainer.id = 'buttons-container';
-
-    var btnSim = document.createElement('button');
-    btnSim.innerText = 'Sim';
-    btnSim.onclick = function () {
-        handleConfirmacaoData(true);
-    };
-
-    buttonsContainer.appendChild(btnSim);
-    document.getElementById('chat-messages').appendChild(buttonsContainer);
-    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-}
 
 // Função para lidar com a confirmação da data de nascimento
 function handleConfirmacaoData(response) {
     if (response) {
         showAgentMessage("Quando o seu pequeno nasceu, você trabalhava de carteira assinada?");
-        askCarteiraAssinada(); // Pergunta sobre carteira assinada
+        askCarteiraAssinada1(); // Pergunta sobre carteira assinada
     
 } else {
         showAgentMessage("Tudo bem, mamãe! Preciso que dessa vez, coloque a data correta do nascimento do seu pequeno!");
@@ -533,7 +572,7 @@ function handleConfirmacaoData(response) {
 }
 
 // Função para perguntar se trabalhava de carteira assinada
-function askCarteiraAssinada() {
+function askCarteiraAssinada1() {
     var buttonsContainer = document.createElement('div');
     buttonsContainer.id = 'buttons-container';
 
@@ -541,14 +580,14 @@ function askCarteiraAssinada() {
     btnSim.innerText = 'Sim';
     btnSim.onclick = function () {
         userData.carteira_assinada = true; // Define como verdadeiro
-        handleCarteiraAssinadaResponse(true); // Processa a resposta
+        handleCarteiraAssinadaResponse1(true); // Processa a resposta
     };
 
     var btnNao = document.createElement('button');
     btnNao.innerText = 'Não';
     btnNao.onclick = function () {
         userData.carteira_assinada = false; // Define como falso
-        handleCarteiraAssinadaResponse(false); // Processa a resposta
+        handleCarteiraAssinadaResponse1(false); // Processa a resposta
     };
 
     buttonsContainer.appendChild(btnSim);
@@ -557,7 +596,7 @@ function askCarteiraAssinada() {
     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 }
 
-function handleCarteiraAntesResponse(response) {
+function handleCarteiraAntesResponse1(response) {
     showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
     console.log("Dados armazenados:", userData);
 
@@ -567,26 +606,26 @@ function handleCarteiraAntesResponse(response) {
         // Pergunta sobre seguro-desemprego
         setTimeout(() => {
             showAgentMessage("Quando você saiu do seu último emprego, chegou a receber o seguro desemprego?");
-            askSeguroDesemprego(); // Função para criar botões de resposta
+            askSeguroDesemprego1(); // Função para criar botões de resposta
         }, 2000);
     } else {
         showAgentMessage("Certo, mamãe. Vamos continuar analisando a sua situação.");
     }
 }
 
-
- function askSeguroDesemprego() {
+//1111
+ function askSeguroDesemprego1() {
     var buttonsContainer = document.createElement('div');
     buttonsContainer.id = 'buttons-container';
 
     var btnSim = document.createElement('button');
-    btnSim.innerText = 'Sim';
+    btnSim.innerText = 'SIM';
     btnSim.onclick = function () {
-        handleSeguroDesempregoResponse(true);
+        handleFluxo01(true);
     };
 
     var btnNao = document.createElement('button');
-    btnNao.innerText = 'Não';
+    btnNao.innerText = 'NÃO';
     btnNao.onclick = function () {
         handleSeguroDesempregoResponse(false);
     };
@@ -598,17 +637,283 @@ function handleCarteiraAntesResponse(response) {
 }
 
 
-function handleSeguroDesempregoResponse(response) {
+function handleFluxoNovo1(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage("Perfeito, agora preciso que nos informe qual foi o mês e ano que saiu do seu último emprego de carteira assinada. (Exemplo: 10/2023)");
+        askFluxoNovo10(); // Chama a função de ultimo emprego
+    } else {
+        showAgentMessage("Você possui carteira de trabalho física ou digital?");
+    }
+}
+
+
+// Função para perguntar sobre o nascimento do primogênito
+function askFluxoNovo10() {
+    document.getElementById('send-button').onclick = function () {
+        var input = document.getElementById('message-input');
+        var messageText = input.value.trim(); // Obtém a resposta do usuário
+
+        if (messageText.match(/^\d{2}\/\d{4}$/)) { // Valida o formato MM/AAAA
+            userData.nascimento_primogenito = messageText;
+            addUserMessage(messageText); // Adiciona a mensagem no chat
+            input.value = ''; // Limpa o campo de entrada
+
+            // Pergunta se a data está correta
+            confirmDataSaiu();
+        } else {
+            showAgentMessage("Por favor, insira uma data válida no formato MM/AAAA.");
+        }
+    };
+}
+
+function confirmDataSaiu() {
+    showAgentMessage("A data acima está correta, mamãe?");
+    
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    // Botão Sim
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        askFluxo02(true); // Confirmação da data
+    };
+    buttonsContainer.appendChild(btnSim);
+
+    // Botão Não
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        askFluxoNovo10(false); // Lida com a resposta "Não"
+    };
+    buttonsContainer.appendChild(btnNao);
+
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+
+function handleFluxo01(response) {
     showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
     console.log("Dados armazenados:", userData);
 
     if (response) {
         showAgentMessage("Mamãe, você tem carteira de trabalho digital ou física, acesso ao aplicativo do INSS e sua rescisão contratual em mãos?");
-        askSaiuUltimoEmprego(); // Chama a função de ultimo emprego
+        confirmFluxo01(); // Chama a função de ultimo emprego
     } else {
         showAgentMessage("Você possui carteira de trabalho física ou digital?");
     }
 }
+
+
+function confirmFluxo01() {
+    
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    // Botão Sim
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        showAgentMessage("Perfeito, agora preciso que nos informe qual foi o mês e ano que saiu do seu último emprego de carteira assinada. (Exemplo: 01/2023)")
+        askFluxo02(true); // Confirmação da data
+    };
+    buttonsContainer.appendChild(btnSim);
+
+    // Botão Não
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        askFluxoNovo10(false); // Lida com a resposta "Não"
+    };
+    buttonsContainer.appendChild(btnNao);
+
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+// Função para perguntar sobre o nascimento do primogênito
+function askFluxo02() {
+    document.getElementById('send-button').onclick = function () {
+        var input = document.getElementById('message-input');
+        var messageText = input.value.trim(); // Obtém a resposta do usuário
+
+        if (messageText.match(/^\d{2}\/\d{4}$/)) { // Valida o formato MM/AAAA
+            userData.nascimento_primogenito = messageText;
+            addUserMessage(messageText); // Adiciona a mensagem no chat
+            input.value = ''; // Limpa o campo de entrada
+
+            showAgentMessage("Você foi demitida ou pediu as contas?");
+            askFluxo03(); // Próxima pergunta (substitua por sua lógica)
+        } else {
+            showAgentMessage("Por favor, insira uma data válida no formato MM/AAAA.");
+        }
+    };
+}
+
+
+
+function askFluxo03() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'FUI DEMITIDA';
+    btnSim.onclick = function () {
+        handleFluxo03(true);
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'PEDI AS CONTAS';
+    btnNao.onclick = function () {
+        handleMotivoSaidaResponse(false); //AJUSTAR
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+function handleFluxo03(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage("Você entrou ou entrará com um processo trabalhista contra a empresa por ter saído gestante?");
+        askProcessoTrabalhista(); // Chama a função de ultimo emprego
+    } else {
+        showAgentMessage("Você possui carteira de trabalho física ou digital?");
+    }
+}
+
+
+function handleFluxo02PediContas(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage("Você entrou ou entrará com um processo trabalhista contra a empresa por ter saído gestante?");
+        askProcessoTrabalhista(); // Chama a função de ultimo emprego
+    } else {
+        showAgentMessage("Você possui carteira de trabalho física ou digital?");
+    }
+}
+
+
+function askFluxo04() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'SIM';
+    btnSim.onclick = function () {
+        showAgentMessage(`Compreendo, ${userData.nome}. Para entender o seu caso da melhor forma, iremos entrar em contato com você através um de nossos especialistas em processos de demissão de mamães e gestantes. Ele entenderá todos os detalhes do seu caso, para  garantir que você conquiste a orientação mais adequada para assegurar o seu direito ao benefício.`);
+        askHorario();
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'NÃO';
+    btnNao.onclick = function () {
+        askFluxo02(false); //AJUSTAR
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+
+
+
+function handleSeguroDesempregoResponse(response) {
+    showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
+    console.log("Dados armazenados:", userData);
+
+    if (response) {
+        showAgentMessage("Já chegou a realizar o pagamento de, no mínimo, 10 contribuições?");
+        askSaiuUltimoEmprego(); // Chama a função de ultimo emprego
+    } else {
+        showAgentMessage("Você possui carteira de trabalho física ou digital?");
+        askCarteiraFluxoFinal();
+    }
+}
+
+
+
+
+function askCarteiraFluxoFinal() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        clearPreviousButtons(); // Limpa os botões anteriores
+        showAgentMessage(`Qual foi o mês e o ano em que você saiu do trabalho antes do nascimento do seu pequeno? (Exemplo: 01/2023)`);
+        setTimeout(() => askMesAnoUltimoEmprego03(), 1000); // Aguarda para chamar a próxima função
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Não';
+    btnNao.onclick = function () {
+        clearPreviousButtons(); // Limpa os botões anteriores
+        showAgentMessage(`Qual foi o mês e o ano em que você saiu do trabalho antes do nascimento do seu pequeno? (Exemplo: 01/2023)`);
+        askMesAnoUltimoEmprego03()
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+
+
+// Função para perguntar sobre o nascimento do primogênito
+function askMesAnoUltimoEmprego03() {
+    document.getElementById('send-button').onclick = function () {
+        var input = document.getElementById('message-input');
+        var messageText = input.value.trim(); // Obtém a resposta do usuário
+
+        if (messageText.match(/^\d{2}\/\d{4}$/)) { // Valida o formato MM/AAAA
+            userData.saiu_emprego = messageText;
+            addUserMessage(messageText); // Adiciona a mensagem no chat
+            input.value = ''; // Limpa o campo de entrada
+
+            handleCompreendo()
+        } else {
+            showAgentMessage("Por favor, insira uma data válida no formato MM/AAAA.");
+        }
+    };
+}
+
+
+// Função para lidar com a confirmação da data de nascimento
+function handleCompreendo(response) {
+    if (response) {
+        showAgentMessage("Compreendo");
+        askCarteiraFluxoFinal()
+    
+} else {
+        showAgentMessage("Tudo bem, mamãe! Preciso que dessa vez, coloque a data correta do nascimento do seu pequeno!");
+        // Chama novamente a função para inserir a data
+        askCarteiraFluxoFinal();
+    }
+}
+
+
+
+
 
 
 function askSaiuUltimoEmprego() {
@@ -619,15 +924,39 @@ function askSaiuUltimoEmprego() {
     btnSim.innerText = 'Sim';
     btnSim.onclick = function () {
         clearPreviousButtons(); // Limpa os botões anteriores
-        showAgentMessage(`Perfeito, agora preciso que nos informe qual foi o mês e ano que saiu do seu último emprego de carteira assinada (exemplo: 06/2022):`);
-        setTimeout(() => askMesAnoUltimoEmprego(), 1000); // Aguarda para chamar a próxima função
+        showAgentMessage(`Pode nos informar a data, por favor? (Exemplo: 06/2022):`);
+        setTimeout(() => askMesAnoUltimoEmprego02(), 1000); // Aguarda para chamar a próxima função
     };
 
     var btnNao = document.createElement('button');
     btnNao.innerText = 'Não';
     btnNao.onclick = function () {
         clearPreviousButtons(); // Limpa os botões anteriores
-        showAgentMessage("Sem problemas, mamãe. Você pode organizar os documentos e voltar para concluir.");
+        showAgentMessage("Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!");
+    
+        showAgentMessage("Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇");
+
+        // Cria o botão verde para redirecionar para o WhatsApp
+var buttonSite = document.createElement('button');
+buttonSite.innerText = 'Quero indicar!';
+buttonSite.style.backgroundColor = '#d008f1';
+buttonSite.style.color = 'white';
+buttonSite.style.fontWeight = '700';
+buttonSite.style.padding = '10px 20px';
+buttonSite.style.border = 'none';
+buttonSite.style.borderRadius = '5px';
+buttonSite.style.cursor = 'pointer';
+
+// Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+buttonSite.onclick = function() {
+    var whatsappURL = `https://indica.prevxassessoria.com.br/`;
+    window.open(whatsappURL, '_blank'); // Abre o Site em uma nova aba
+};
+
+// Adiciona o botão ao chat
+document.getElementById('chat-messages').appendChild(buttonSite);
+document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+    
     };
 
     buttonsContainer.appendChild(btnSim);
@@ -638,7 +967,7 @@ function askSaiuUltimoEmprego() {
 
 
 // Função para perguntar sobre o nascimento do primogênito
-function askMesAnoUltimoEmprego() {
+function askMesAnoUltimoEmprego02() {
     document.getElementById('send-button').onclick = function () {
         var input = document.getElementById('message-input');
         var messageText = input.value.trim(); // Obtém a resposta do usuário
@@ -806,7 +1135,7 @@ document.getElementById('chat-messages').scrollTop = document.getElementById('ch
     };
 
     var btnNao = document.createElement('button');
-    btnNao.innerText = 'Não me lembro';
+    btnNao.innerText = 'Não';
     btnNao.onclick = function () {
         showAgentMessage("A data de saída de seu último emprego foi antes ou depois de setembro de 2023?");
         askSaidaParaReceber();
@@ -826,15 +1155,56 @@ function askSaidaParaReceber() {
     var btnSim = document.createElement('button');
     btnSim.innerText = 'Antes';
     btnSim.onclick = function () {
-        showAgentMessage("A data de saída de seu último registro foi antes ou depois de setembro de 2022? ");
+        showAgentMessage("Viu como foi rápido? Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+        
+           // Cria o botão verde para redirecionar para o WhatsApp
+           var buttonWhatsApp = document.createElement('button');
+        buttonWhatsApp.innerText = 'Fale com um especialista!';
+        buttonWhatsApp.style.backgroundColor = '#25D366'; // Cor verde do WhatsApp
+        buttonWhatsApp.style.color = 'white';
+        buttonWhatsApp.style.padding = '10px 20px';
+        buttonWhatsApp.style.border = 'none';
+        buttonWhatsApp.style.borderRadius = '5px';
+        buttonWhatsApp.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonWhatsApp.onclick = function() {
+        var nomeUsuario = userData.nome || 'Usuário'; // Caso o nome ainda não tenha sido capturado
+        var whatsappURL = `https://wa.me/5511975242253?text=Oi%2C%20meu%20nome%20é%20${encodeURIComponent(nomeUsuario)},%20tenho%20uma%20criança%20com%20menos%20de%205%20anos.%20Quando%20ele%20nasceu%20eu%20não%20estava%20com%20a%20carteira%20assinada,%20mas%20já%20a%20tive%20e%20recebi%20seguro%20desemprego. %20Fui%20eu%20quem%20pediu%20as%20contas%20no%meu%20último%20emprego,%20não%20recebi%20valores%20pela%20gravidez%20e%20saí%20antes%20de%20setembro%20de%202023. %20Gostaria%20de%20ajuda%20para%20solicitar%20meu%20auxílio-maternidade!`;
+        window.open(whatsappURL, '_blank'); // Abre o WhatsApp em uma nova aba
+    };
+
+     // Adiciona o botão ao chat
+     document.getElementById('chat-messages').appendChild(buttonWhatsApp);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+    
     };
 
     var btnNao = document.createElement('button');
     btnNao.innerText = 'Depois';
     btnNao.onclick = function () {
-        showAgentMessage("Ótimo, estamos quase lá!");
-        showAgentMessage("Quando saiu do seu último emprego, chegou a receber as parcelas do seguro desemprego?")
-        askQuandoSaiu();
+        showAgentMessage("Viu como foi rápido? Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+        
+        // Cria o botão verde para redirecionar para o WhatsApp
+        var buttonWhatsApp = document.createElement('button');
+     buttonWhatsApp.innerText = 'Fale com um especialista!';
+     buttonWhatsApp.style.backgroundColor = '#25D366'; // Cor verde do WhatsApp
+     buttonWhatsApp.style.color = 'white';
+     buttonWhatsApp.style.padding = '10px 20px';
+     buttonWhatsApp.style.border = 'none';
+     buttonWhatsApp.style.borderRadius = '5px';
+     buttonWhatsApp.style.cursor = 'pointer';
+
+     // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+     buttonWhatsApp.onclick = function() {
+     var nomeUsuario = userData.nome || 'Usuário'; // Caso o nome ainda não tenha sido capturado
+     var whatsappURL = `https://wa.me/5511975242253?text=Oi%2C%20meu%20nome%20é%20${encodeURIComponent(nomeUsuario)},%20tenho%20uma%20criança%20com%20menos%20de%205%20anos.%20Quando%20ele%20nasceu%20eu%20não%20estava%20com%20a%20carteira%20assinada,%20mas%20já%20a%20tive%20e%20recebi%20seguro%20desemprego. %20Fui%20eu%20quem%20pediu%20as%20contas%20no%meu%20último%20emprego,%20não%20recebi%20valores%20pela%20gravidez%20e%20saí%20depois%20de%20setembro%20de%202023. %20Gostaria%20de%20ajuda%20para%20solicitar%20meu%20auxílio-maternidade!`;
+     window.open(whatsappURL, '_blank'); // Abre o WhatsApp em uma nova aba
+ };
+
+  // Adiciona o botão ao chat
+  document.getElementById('chat-messages').appendChild(buttonWhatsApp);
+     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
     };
 
     buttonsContainer.appendChild(btnSim);
@@ -918,13 +1288,48 @@ function askQuandoSaiu() {
     var btnSim = document.createElement('button');
     btnSim.innerText = 'Sim';
     btnSim.onclick = function () {
-        showAgentMessage("Certo, mamãe. Obrigado por compartilhar as informações.");
+        showAgentMessage(`Compreendo, ${userData.nome}. Para entender o seu caso da melhor forma, iremos entrar em contato com você através um de nossos especialistas em processos de demissão de mamães e gestantes.`);
+        
+        setTimeout(() => {
+            showAgentMessage('Ele entenderá todos os detalhes do seu caso, para garantir que você conquiste a orientação mais adequada para assegurar o seu direito ao benefício.');
+        }, 4000);
+
+        setTimeout(() => {
+            showAgentMessage('Por favor, selecione o melhor horário para entrarmos em contato:');
+        }, 2000); // Aumentando o tempo para 2 segundos para garantir que a mensagem anterior apareça primeiro.
+
+        // Usando setTimeout para chamar a função askHorario após as mensagens.
+        setTimeout(() => {
+            askHorario();
+        }, 3000); // 3 segundos após a última mensagem, garantido que tudo foi mostrado antes
     };
 
     var btnNao = document.createElement('button');
     btnNao.innerText = 'Não';
     btnNao.onclick = function () {
-        showAgentMessage("Certo, mamãe. Obrigado por compartilhar as informações.");
+        showAgentMessage("Viu como foi rápido? Agora estamos te transferindo para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+        
+            // Cria o botão verde para redirecionar para o WhatsApp
+            var buttonWhatsApp = document.createElement('button');
+        buttonWhatsApp.innerText = 'Fale com um especialista!';
+        buttonWhatsApp.style.backgroundColor = '#25D366'; // Cor verde do WhatsApp
+        buttonWhatsApp.style.color = 'white';
+        buttonWhatsApp.style.padding = '10px 20px';
+        buttonWhatsApp.style.border = 'none';
+        buttonWhatsApp.style.borderRadius = '5px';
+        buttonWhatsApp.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonWhatsApp.onclick = function() {
+        var nomeUsuario = userData.nome || 'Usuário'; // Caso o nome ainda não tenha sido capturado
+        var whatsappURL = `https://wa.me/5511975242253?text=Oi%2C%20meu%20nome%20é%20${encodeURIComponent(nomeUsuario)},%20não%20estou%20grávida%20no%20momento%20mas%20tenho%20um%20filho%20com%20menos%20de%205%20anos.%20Não%20recebi%20o%20benefício%20pelo%20nascimento%20dele%20e%20não%20trabalhava%20com%20carteira%20assinada%20na%20época. Gostaria%20de%20ajuda%20para%20solicitar%20meu%20auxílio-maternidade!`;
+        window.open(whatsappURL, '_blank'); // Abre o WhatsApp em uma nova aba
+    };
+
+     // Adiciona o botão ao chat
+     document.getElementById('chat-messages').appendChild(buttonWhatsApp);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+    
     };
 
     buttonsContainer.appendChild(btnSim);
@@ -933,7 +1338,97 @@ function askQuandoSaiu() {
     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 }
 
+
   
+// Função para exibir a mensagem e o botão do WhatsApp
+function showWhatsAppButton() {
+    // Exibe a mensagem para o usuário
+    showAgentMessage("Iremos te transferir para um de nossos atendentes para continuar com a sua consulta através do WhatsApp.");
+
+    // Cria o botão verde para redirecionar para o WhatsApp
+    var buttonWhatsApp = document.createElement('button');
+    buttonWhatsApp.innerText = 'Fale com um especialista!';
+    buttonWhatsApp.style.backgroundColor = '#25D366'; // Cor verde do WhatsApp
+    buttonWhatsApp.style.color = 'white';
+    buttonWhatsApp.style.padding = '10px 20px';
+    buttonWhatsApp.style.border = 'none';
+    buttonWhatsApp.style.borderRadius = '5px';
+    buttonWhatsApp.style.cursor = 'pointer';
+
+    // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+    buttonWhatsApp.onclick = function() {
+        var nomeUsuario = userData.nome || 'Usuário'; // Caso o nome ainda não tenha sido capturado
+        var horarioSelecionado = userData.horario || 'não especificado'; // Caso o horário ainda não tenha sido capturado
+        var whatsappURL = `https://wa.me/5511975242253?text=Oi%2C%20meu%20nome%20é%20${encodeURIComponent(nomeUsuario)},%20não%20estou%20grávida%20no%20momento%20mas%20tenho%20um%20filho%20com%20menos%20de%205%20anos.%20Não%20recebi%20o%20benefício%20pelo%20nascimento%20dele%20e%20não%20trabalhava%20com%20carteira%20assinada%20na%20época.%20Gostaria%20de%20ajuda%20para%20solicitar%20meu%20auxílio-maternidade!%20O%20horário%20que%20eu%20selecionei%20foi%20${encodeURIComponent(horarioSelecionado)}.`;
+        window.open(whatsappURL, '_blank'); // Abre o WhatsApp em uma nova aba
+    };
+
+    // Adiciona o botão ao chat
+    document.getElementById('chat-messages').appendChild(buttonWhatsApp);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+// Função para perguntar sobre os horários
+function askHorario() {
+    clearPreviousButtons(); // Remove botões anteriores
+
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+    buttonsContainer.style.display = 'grid';
+    buttonsContainer.style.gridTemplateColumns = '1fr 1fr 1fr'; // 3 colunas para mais opções visíveis
+    buttonsContainer.style.gap = '10px'; // Espaçamento entre os botões
+
+    const startHour = 7; // Começando às 7h30
+    const endHour = 17; // Até as 17h30
+    const interval = 30; // Intervalo de 30 minutos
+
+    let hour = startHour;
+    let minute = 30;
+
+    // Gerando os horários de 30 em 30 minutos
+    while (hour <= endHour) {
+        const timeLabel = `${hour}:${minute < 10 ? '0' : ''}${minute}`;
+
+        const button = document.createElement('button');
+        button.innerText = timeLabel;
+        button.onclick = function () {
+            userData.horario = timeLabel; // Armazena o horário escolhido no userData
+
+            // Após escolher o horário, chama a função do WhatsApp
+            showWhatsAppButton();
+        };
+
+        buttonsContainer.appendChild(button);
+
+        // Atualiza o minuto e hora para o próximo intervalo
+        minute += interval;
+        if (minute === 60) {
+            minute = 0;
+            hour++;
+        }
+    }
+
+    // Adicionando o botão "Qualquer Opção" com largura maior
+    const anyOptionButton = document.createElement('button');
+    anyOptionButton.innerText = 'Qualquer Opção';
+    anyOptionButton.style.gridColumn = 'span 2'; // Faz o botão ocupar as 3 colunas
+    anyOptionButton.style.width = '140%'; // Ajusta a largura do botão "Qualquer Opção"
+    anyOptionButton.onclick = function () {
+        userData.horario = 'Qualquer Opção'; // Armazena a opção "Qualquer Opção" no userData
+
+        // Após escolher a opção, chama a função do WhatsApp
+        showWhatsAppButton();
+    };
+
+    buttonsContainer.appendChild(anyOptionButton);
+
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
+
+
+
   
   
   // Função para perguntar se trabalhava de carteira assinada
@@ -962,7 +1457,7 @@ function askCarteiraAssinada() {
 }
 
 // Função para lidar com a resposta sobre carteira assinada
-function handleCarteiraAssinadaResponse(response) {
+function handleCarteiraAssinadaResponse1(response) {
     clearPreviousButtons(); // Remove os botões anteriores
     if (response) {
         // Se a resposta for "Sim"
@@ -994,12 +1489,12 @@ function handleCarteiraAssinadaResponse(response) {
     } else {
         // Se a resposta for "Não"
         showAgentMessage("Mamãe, você chegou a ter carteira registrada ANTES do nascimento do seu filho?");
-        askCarteiraAntes(); // Pergunta sobre carteira assinada antes do nascimento
+        askCarteiraAntes1(); // Pergunta sobre carteira assinada antes do nascimento
     }
 }
 
 // Função para perguntar sobre carteira assinada antes do nascimento
-function askCarteiraAntes() {
+function askCarteiraAntes1() {
     var buttonsContainer = document.createElement('div');
     buttonsContainer.id = 'buttons-container';
 
@@ -1023,22 +1518,83 @@ function askCarteiraAntes() {
     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 }
 
-// Função para lidar com a resposta sobre carteira registrada antes do nascimento
+// Função para lidar com a resposta sobre carteira registrada antes do nascimento 1111
 function handleCarteiraAntesResponse(response) {
     showAgentMessage(`Você respondeu: ${response ? "Sim" : "Não"}`);
     console.log("Dados armazenados:", userData);
 
     if (response) {
-        showAgentMessage(`Ok ${userData.nome}, agora resta poucos detalhes para finalizar a sua consulta!`);
+        showAgentMessage(`Fantástico ${userData.nome}, agora resta poucos detalhes para finalizar a sua consulta!`);
 
         setTimeout(function () {
             showAgentMessage("Quando você saiu do seu último emprego, chegou a receber o seguro desemprego?");
-            askSeguroDesemprego(); // Pergunta sobre seguro-desemprego
+            askSeguroDesemprego1(); // Pergunta sobre seguro-desemprego
         }, 2000);
     } else {
-        showAgentMessage("Certo, mamãe. Vamos continuar analisando a sua situação.");
+        showAgentMessage("Certo, mamãe! Você já chegou a realizar alguma dessas contribuições: Recolhimento para o INSS/ Carnês do INSS/ Sindicato de Pesca/ MEI/ Sindicato Rural?");
+        askJaContribuiu();
     }
 }
+
+
+
+// Função para remover botões anteriores
+function clearPreviousButtons() {
+    var buttonsContainer = document.getElementById('buttons-container');
+    if (buttonsContainer) {
+        buttonsContainer.remove(); // Remove o container dos botões
+    }
+}
+  
+  // Função para perguntar sobre o seguro-desemprego
+function askJaContribuiu() {
+    var buttonsContainer = document.createElement('div');
+    buttonsContainer.id = 'buttons-container';
+
+    var btnSim = document.createElement('button');
+    btnSim.innerText = 'Sim';
+    btnSim.onclick = function () {
+        userData.seguro_desemprego = true; // Define como verdadeiro
+        handleSeguroDesempregoResponse(true); // Processa a resposta
+    };
+
+    var btnNao = document.createElement('button');
+    btnNao.innerText = 'Nunca Contribuí';
+    btnNao.onclick = function () {
+        userData.seguro_desemprego = false; // Define como falso
+        showAgentMessage("Entendi, constamos em nosso sistema que você não atende os pré-requisitos para obter ao auxílio-maternidade para essa criança. Mas não desanime!");
+        showAgentMessage("Vou deixar um link onde pode ganhar até R$ 50 por indicação 👇");
+
+          // Cria o botão verde para redirecionar para o WhatsApp
+          var buttonSite = document.createElement('button');
+        buttonSite.innerText = 'Quero indicar!';
+        buttonSite.style.backgroundColor = '#d008f1';
+        buttonSite.style.color = 'white';
+        buttonSite.style.fontWeight = '700';
+        buttonSite.style.padding = '10px 20px';
+        buttonSite.style.border = 'none';
+        buttonSite.style.borderRadius = '5px';
+        buttonSite.style.cursor = 'pointer';
+
+        // Ao clicar, redireciona para o WhatsApp com a mensagem pré-preenchida
+        buttonSite.onclick = function() {
+            var whatsappURL = `https://indica.prevxassessoria.com.br/`;
+            window.open(whatsappURL, '_blank'); // Abre o Site em uma nova aba
+        };
+
+        // Adiciona o botão ao chat
+        document.getElementById('chat-messages').appendChild(buttonSite);
+        document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+
+
+    };
+
+    buttonsContainer.appendChild(btnSim);
+    buttonsContainer.appendChild(btnNao);
+    document.getElementById('chat-messages').appendChild(buttonsContainer);
+    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+}
+
 
 // Função para remover botões anteriores
 function clearPreviousButtons() {
@@ -1201,7 +1757,7 @@ function askBeneficioRecebido() {
 
 
 // Função para perguntar sobre o nascimento do primogênito
-function askNascimentoPrimogenito() {
+function askNascimentoPrimogenito1() {
     document.getElementById('send-button').onclick = function () {
         var input = document.getElementById('message-input');
         var messageText = input.value.trim(); // Obtém a resposta do usuário
@@ -1329,65 +1885,7 @@ function askGravida() {
     document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
 }
 
-// Função para lidar com a resposta sobre gravidez
-function handleGravidezResponse(response) {
-    clearPreviousButtons(); // Remove botões anteriores
 
-    if (response) {
-        // Caso a resposta seja "Sim"
-        showAgentMessage("Que maravilha! Que ele(a) nasça com muita saúde 🥰...");
-
-        setTimeout(() => {
-            showAgentMessage("Você se encontra com quantos meses de gestação?");
-            askMesesGestacao(); // Chama a próxima etapa
-        }, 1000);
-    } else {
-        // Caso a resposta seja "Não"
-        showAgentMessage("Você tem algum filho menor de 5 anos?");
-        setTimeout(() => askFilhoMenor(), 1000); // Aguarda um pouco antes de chamar a próxima pergunta
-    }
-}
-
-
-
-
-
-// Função para perguntar sobre os meses de gestação
-function askMesesGestacao() {
-    clearPreviousButtons(); // Remove botões anteriores
-
-    const buttonsContainer = document.createElement('div');
-    buttonsContainer.id = 'buttons-container';
-    buttonsContainer.style.display = 'grid';
-    buttonsContainer.style.gridTemplateColumns = '1fr 1fr'; // Duas colunas
-    buttonsContainer.style.gap = '10px'; // Espaçamento entre os botões
-
-    for (let i = 1; i <= 9; i++) {
-        const button = document.createElement('button');
-        button.innerText = `${i} ${i > 1 ? 'meses' : 'mês'}`;
-        button.onclick = function () {
-            userData.meses_gravidez = i; // Armazena o número de meses
-            handleMesesGestacaoResponse(i); // Processa a resposta
-        };
-        buttonsContainer.appendChild(button);
-    }
-
-    document.getElementById('chat-messages').appendChild(buttonsContainer);
-    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
-}
-
-// Função para lidar com a resposta sobre os meses de gestação
-function handleMesesGestacaoResponse(meses) {
-    showAgentMessage(`Você respondeu: ${meses} ${meses > 1 ? 'meses' : 'mês'}.`);
-    console.log("Dados armazenados:", userData);
-
-    // Adicione aqui o próximo fluxo baseado na resposta
-    setTimeout(() => {
-        showAgentMessage("Atualmente, você está empregada ou está desempregada?");
-        askEmpregoStatus();
-        // Continue o fluxo conforme necessário
-    }, 1000);
-} 
   
   function askDataSaidaEmprego() {
     var buttonsContainer = document.createElement('div');
@@ -1630,13 +2128,13 @@ function askEmpregoStatus() {
     var btnEmpregada = document.createElement('button');
     btnEmpregada.innerText = 'ESTOU EMPREGADA';
     btnEmpregada.onclick = function () {
-        handleEmpregoStatusResponse(true);
+        handleEmpregoStatusResponse1(true);
     };
 
     var btnDesempregada = document.createElement('button');
     btnDesempregada.innerText = 'ESTOU DESEMPREGADA';
     btnDesempregada.onclick = function () {
-        handleEmpregoStatusResponse(false);
+        handleEmpregoStatusResponse1(false);
     };
 
     buttonsContainer.appendChild(btnEmpregada);
@@ -1646,7 +2144,7 @@ function askEmpregoStatus() {
 }
 
 // Função para lidar com a resposta sobre estar empregada ou desempregada
-function handleEmpregoStatusResponse(isEmpregada) {
+function handleEmpregoStatusResponse1(isEmpregada) {
     clearPreviousButtons();
 
     if (isEmpregada) {
@@ -1753,7 +2251,7 @@ function handleContribuiuResponse(isSim) {
     clearPreviousButtons();
 
     if (isSim) {
-        showAgentMessage("Já chegou a realizar o pagamento de, no mínimo, 10 contribuições?"); 
+        showAgentMessage("Já chegou a realizar o pagamento de, no mínimo, 10 contribuições?"); //primeiro fluxo
         ask10Meses();
     } else {
         showAgentMessage("Já chegou a realizar o pagamento de, no mínimo, 10 contribuições?");
